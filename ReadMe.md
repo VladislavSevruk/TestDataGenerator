@@ -104,7 +104,7 @@ TestDataGenerationContextManager.getContext().getTestDataGeneratorStorage()
 ### Adding custom field mappings
 If you want to set custom generation logic for any field you can add it to 
 [CustomFieldMappingStorage](/src/main/java/com/github/vladislavsevruk/generator/test/data/mapping/CustomFieldMappingStorage.java) 
-using one of ``addMapping`` method:
+using ``addMapping`` method:
 ```kotlin
 Field field = TestModel.class.getDeclaredField("field2");
 TestDataGenerationContextManager.getContext().getCustomFieldMappingStorage()
