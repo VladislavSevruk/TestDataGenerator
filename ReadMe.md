@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/VladislavSevruk/TestDataGenerator.svg?branch=develop)](https://travis-ci.com/VladislavSevruk/TestDataGenerator)
+[![Build Status](https://travis-ci.org/VladislavSevruk/TestDataGenerator.svg?branch=master)](https://travis-ci.com/VladislavSevruk/TestDataGenerator)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=VladislavSevruk_TestDataGenerator&metric=alert_status)](https://sonarcloud.io/dashboard?id=VladislavSevruk_TestDataGenerator)
 [![Code Coverage](https://sonarcloud.io/api/project_badges/measure?project=VladislavSevruk_TestDataGenerator&metric=coverage)](https://sonarcloud.io/component_measures?id=VladislavSevruk_TestDataGenerator&metric=coverage)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.vladislavsevruk/test-data-generator/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.vladislavsevruk/test-data-generator)
