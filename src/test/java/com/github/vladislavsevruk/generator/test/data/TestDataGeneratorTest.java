@@ -33,7 +33,9 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 class TestDataGeneratorTest {
@@ -43,22 +45,16 @@ class TestDataGeneratorTest {
         DescendantModel model = new TestDataGenerator().generate(DescendantModel.class);
         Assertions.assertNotNull(model);
         Assertions.assertNotNull(model.getStringField());
-        Assertions.assertNotNull(model.getParameterizedField());
-        Assertions.assertNotEquals(0, model.getParameterizedField().size());
-        Assertions.assertTrue(model.getParameterizedField().stream().allMatch(Objects::nonNull));
+        assertCollection(model.getParameterizedField());
     }
 
     @Test
     void generateListItemsTest() {
         List<SimpleModel> list = new TestDataGenerator().generate(new TypeProvider<List<SimpleModel>>() {});
-        Assertions.assertNotNull(list);
-        Assertions.assertNotEquals(0, list.size());
-        Assertions.assertTrue(list.stream().allMatch(Objects::nonNull));
+        assertCollection(list);
         list.forEach(model -> {
             Assertions.assertNotNull(model.getStringField());
-            Assertions.assertNotNull(model.getStringListField());
-            Assertions.assertNotEquals(0, model.getStringListField().size());
-            Assertions.assertTrue(model.getStringListField().stream().allMatch(Objects::nonNull));
+            assertCollection(model.getStringListField());
         });
     }
 
@@ -68,9 +64,7 @@ class TestDataGeneratorTest {
                 .generate(new TypeProvider<ParameterizedModel<List<String>>>() {});
         Assertions.assertNotNull(model);
         Assertions.assertNotNull(model.getStringField());
-        Assertions.assertNotNull(model.getParameterizedField());
-        Assertions.assertNotEquals(0, model.getParameterizedField().size());
-        Assertions.assertTrue(model.getParameterizedField().stream().allMatch(Objects::nonNull));
+        assertCollection(model.getParameterizedField());
     }
 
     @Test
@@ -78,24 +72,13 @@ class TestDataGeneratorTest {
         SupportedTypesModel model = new TestDataGenerator().generate(SupportedTypesModel.class);
         Assertions.assertNotNull(model);
         Assertions.assertNotNull(model.getEnumField());
-        Assertions.assertNotNull(model.getMapField());
-        Assertions.assertNotEquals(0, model.getMapField().size());
-        Assertions.assertTrue(model.getMapField().keySet().stream().allMatch(Objects::nonNull));
-        Assertions.assertTrue(model.getMapField().values().stream().allMatch(Objects::nonNull));
+        assertMap(model.getMapField());
         Assertions.assertNotNull(model.getSimpleModelField());
         Assertions.assertNotNull(model.getSimpleModelField().getStringField());
-        Assertions.assertNotNull(model.getSimpleModelField().getStringListField());
-        Assertions.assertNotEquals(0, model.getSimpleModelField().getStringListField().size());
-        Assertions.assertTrue(model.getSimpleModelField().getStringListField().stream().allMatch(Objects::nonNull));
-        Assertions.assertNotNull(model.getArrayField());
-        Assertions.assertNotEquals(0, model.getArrayField().length);
-        Assertions.assertTrue(Arrays.stream(model.getArrayField()).allMatch(Objects::nonNull));
-        Assertions.assertNotNull(model.getListField());
-        Assertions.assertNotEquals(0, model.getListField().size());
-        Assertions.assertTrue(model.getListField().stream().allMatch(Objects::nonNull));
-        Assertions.assertNotNull(model.getSetField());
-        Assertions.assertNotEquals(0, model.getSetField().size());
-        Assertions.assertTrue(model.getSetField().stream().allMatch(Objects::nonNull));
+        assertCollection(model.getSimpleModelField().getStringListField());
+        assertArray(model.getArrayField());
+        assertCollection(model.getListField());
+        assertCollection(model.getSetField());
         Assertions.assertNotNull(model.getBooleanField());
         Assertions.assertNotNull(model.getByteField());
         Assertions.assertNotNull(model.getCharacterField());
@@ -111,25 +94,30 @@ class TestDataGeneratorTest {
     void generateSpecificCollectionPojoModelTest() {
         SpecificCollectionsModel model = new TestDataGenerator().generate(SpecificCollectionsModel.class);
         Assertions.assertNotNull(model);
-        Assertions.assertNotNull(model.getAbstractMapField());
-        Assertions.assertNotEquals(0, model.getAbstractMapField().size());
-        Assertions.assertTrue(model.getAbstractMapField().keySet().stream().allMatch(Objects::nonNull));
-        Assertions.assertTrue(model.getAbstractMapField().values().stream().allMatch(Objects::nonNull));
-        Assertions.assertNotNull(model.getLinkedHashMapField());
-        Assertions.assertNotEquals(0, model.getLinkedHashMapField().size());
-        Assertions.assertTrue(model.getLinkedHashMapField().keySet().stream().allMatch(Objects::nonNull));
-        Assertions.assertTrue(model.getLinkedHashMapField().values().stream().allMatch(Objects::nonNull));
-        Assertions.assertNotNull(model.getAbstractListField());
-        Assertions.assertNotEquals(0, model.getAbstractListField().size());
-        Assertions.assertTrue(model.getAbstractListField().stream().allMatch(Objects::nonNull));
-        Assertions.assertNotNull(model.getLinkedListField());
-        Assertions.assertNotEquals(0, model.getLinkedListField().size());
-        Assertions.assertTrue(model.getLinkedListField().stream().allMatch(Objects::nonNull));
-        Assertions.assertNotNull(model.getAbstractSetField());
-        Assertions.assertNotEquals(0, model.getAbstractSetField().size());
-        Assertions.assertTrue(model.getAbstractSetField().stream().allMatch(Objects::nonNull));
-        Assertions.assertNotNull(model.getLinkedHashSetField());
-        Assertions.assertNotEquals(0, model.getLinkedHashSetField().size());
-        Assertions.assertTrue(model.getLinkedHashSetField().stream().allMatch(Objects::nonNull));
+        assertMap(model.getAbstractMapField());
+        assertMap(model.getLinkedHashMapField());
+        assertCollection(model.getAbstractListField());
+        assertCollection(model.getLinkedListField());
+        assertCollection(model.getAbstractSetField());
+        assertCollection(model.getLinkedHashSetField());
+    }
+
+    private void assertArray(Object[] array) {
+        Assertions.assertNotNull(array);
+        Assertions.assertNotEquals(0, array.length);
+        Assertions.assertTrue(Arrays.stream(array).allMatch(Objects::nonNull));
+    }
+
+    private void assertCollection(Collection<?> collection) {
+        Assertions.assertNotNull(collection);
+        Assertions.assertNotEquals(0, collection.size());
+        Assertions.assertTrue(collection.stream().allMatch(Objects::nonNull));
+    }
+
+    private void assertMap(Map<?, ?> map) {
+        Assertions.assertNotNull(map);
+        Assertions.assertNotEquals(0, map.size());
+        Assertions.assertTrue(map.keySet().stream().allMatch(Objects::nonNull));
+        Assertions.assertTrue(map.values().stream().allMatch(Objects::nonNull));
     }
 }
