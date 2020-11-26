@@ -54,7 +54,7 @@ class TestDataGeneratorTest {
         assertCollection(list);
         list.forEach(model -> {
             Assertions.assertNotNull(model.getStringField());
-            assertCollection(model.getStringListField());
+            assertCollection(model.getStringListField(), "stringListField");
         });
     }
 
@@ -64,7 +64,7 @@ class TestDataGeneratorTest {
                 .generate(new TypeProvider<ParameterizedModel<List<String>>>() {});
         Assertions.assertNotNull(model);
         Assertions.assertNotNull(model.getStringField());
-        assertCollection(model.getParameterizedField());
+        assertCollection(model.getParameterizedField(), "parameterizedField");
     }
 
     @Test
@@ -72,13 +72,13 @@ class TestDataGeneratorTest {
         SupportedTypesModel model = new TestDataGenerator().generate(SupportedTypesModel.class);
         Assertions.assertNotNull(model);
         Assertions.assertNotNull(model.getEnumField());
-        assertMap(model.getMapField());
+        assertMap(model.getMapField(), "mapField");
         Assertions.assertNotNull(model.getSimpleModelField());
         Assertions.assertNotNull(model.getSimpleModelField().getStringField());
-        assertCollection(model.getSimpleModelField().getStringListField());
-        assertArray(model.getArrayField());
-        assertCollection(model.getListField());
-        assertCollection(model.getSetField());
+        assertCollection(model.getSimpleModelField().getStringListField(), "stringListField");
+        assertArray(model.getArrayField(), "arrayField");
+        assertCollection(model.getListField(), "listField");
+        assertCollection(model.getSetField(), "setField");
         Assertions.assertNotNull(model.getBooleanField());
         Assertions.assertNotNull(model.getByteField());
         Assertions.assertNotNull(model.getCharacterField());
@@ -88,24 +88,31 @@ class TestDataGeneratorTest {
         Assertions.assertNotNull(model.getLongField());
         Assertions.assertNotNull(model.getShortField());
         Assertions.assertNotNull(model.getStringField());
+        Assertions.assertTrue(model.getStringField().startsWith("stringField"));
     }
 
     @Test
     void generateSpecificCollectionPojoModelTest() {
         SpecificCollectionsModel model = new TestDataGenerator().generate(SpecificCollectionsModel.class);
         Assertions.assertNotNull(model);
-        assertMap(model.getAbstractMapField());
-        assertMap(model.getLinkedHashMapField());
-        assertCollection(model.getAbstractListField());
-        assertCollection(model.getLinkedListField());
-        assertCollection(model.getAbstractSetField());
-        assertCollection(model.getLinkedHashSetField());
+        assertMap(model.getAbstractMapField(), "abstractMapField");
+        assertMap(model.getLinkedHashMapField(), "linkedHashMapField");
+        assertCollection(model.getAbstractListField(), "abstractListField");
+        assertCollection(model.getLinkedListField(), "linkedListField");
+        assertCollection(model.getAbstractSetField(), "abstractSetField");
+        assertCollection(model.getLinkedHashSetField(), "linkedHashSetField");
     }
 
-    private void assertArray(Object[] array) {
+    private void assertArray(String[] array, String prefix) {
         Assertions.assertNotNull(array);
         Assertions.assertNotEquals(0, array.length);
         Assertions.assertTrue(Arrays.stream(array).allMatch(Objects::nonNull));
+        Assertions.assertTrue(Arrays.stream(array).allMatch(value -> value.startsWith(prefix)));
+    }
+
+    private void assertCollection(Collection<String> collection, String prefix) {
+        assertCollection(collection);
+        Assertions.assertTrue(collection.stream().allMatch(value -> value.startsWith(prefix)));
     }
 
     private void assertCollection(Collection<?> collection) {
@@ -114,10 +121,12 @@ class TestDataGeneratorTest {
         Assertions.assertTrue(collection.stream().allMatch(Objects::nonNull));
     }
 
-    private void assertMap(Map<?, ?> map) {
+    private void assertMap(Map<String, String> map, String prefix) {
         Assertions.assertNotNull(map);
         Assertions.assertNotEquals(0, map.size());
         Assertions.assertTrue(map.keySet().stream().allMatch(Objects::nonNull));
+        Assertions.assertTrue(map.keySet().stream().allMatch(key -> key.startsWith(prefix + "-Key")));
         Assertions.assertTrue(map.values().stream().allMatch(Objects::nonNull));
+        Assertions.assertTrue(map.values().stream().allMatch(value -> value.startsWith(prefix + "-Value")));
     }
 }

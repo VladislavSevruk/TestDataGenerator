@@ -36,11 +36,15 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.time.temporal.TemporalAccessor;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 import java.util.Dictionary;
 import java.util.Map;
 import java.util.Objects;
 import java.util.TimeZone;
+import java.util.function.BinaryOperator;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * Implements <code>TypeTestDataGenerator</code> for POJOs.
@@ -76,6 +80,67 @@ public class PojoTestDataGenerator extends AbstractParameterizedTestDataGenerato
         return Object.class;
     }
 
+    private <T> T[] addFieldNameToString(TestDataGenerationConfig testDataGenerationConfig, TypeMeta<?> typeMeta,
+            T[] values, String fieldName) {
+        for (int i = 0; i < values.length; ++i) {
+            values[i] = addFieldNameToString(testDataGenerationConfig, typeMeta.getGenericTypes()[0], values[i],
+                    fieldName);
+        }
+        return values;
+    }
+
+    @SuppressWarnings("unchecked")
+    private <U, T extends Collection<U>> T addFieldNameToString(TestDataGenerationConfig testDataGenerationConfig, TypeMeta<?> typeMeta,
+            T values, String fieldName) {
+        try {
+            Class<? extends Collection> clazz = values.getClass();
+            T newCollection = (T) clazz.getConstructor().newInstance();
+            return values.stream()
+                    .map(item -> addFieldNameToString(testDataGenerationConfig, typeMeta.getGenericTypes()[0], item,
+                            fieldName)).collect(Collectors.toCollection(() -> newCollection));
+        } catch (ReflectiveOperationException roEx) {
+            return values;
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private <U, V, T extends Map<U, V>> T addFieldNameToString(TestDataGenerationConfig testDataGenerationConfig,
+            TypeMeta<?> typeMeta, T values, String fieldName) {
+        try {
+            T newMap = (T) values.getClass().getConstructor().newInstance();
+            Function<? super Map.Entry<U, V>, ? extends U> mapKeyFunction = mapKeyFunction(testDataGenerationConfig,
+                    typeMeta, fieldName);
+            Function<? super Map.Entry<U, V>, ? extends V> mapValueFunction = mapValueFunction(testDataGenerationConfig,
+                    typeMeta, fieldName);
+            return values.entrySet().stream()
+                    .collect(Collectors.toMap(mapKeyFunction, mapValueFunction, throwingMerger(), () -> newMap));
+        } catch (ReflectiveOperationException roEx) {
+            return values;
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T> T addFieldNameToString(TestDataGenerationConfig testDataGenerationConfig, TypeMeta<?> typeMeta, T value,
+            String fieldName) {
+        if (Objects.isNull(value)) {
+            return null;
+        }
+        if (typeMeta.getType().isAssignableFrom(String.class)) {
+            String prefix = testDataGenerationConfig.testDataPrefix();
+            return (T) (prefix + fieldName + "-" + value.toString().substring(prefix.length()));
+        }
+        if (Collection.class.isAssignableFrom(value.getClass())) {
+            return (T) addFieldNameToString(testDataGenerationConfig, typeMeta, (Collection<?>) value, fieldName);
+        }
+        if (Object[].class.isAssignableFrom(value.getClass())) {
+            return (T) addFieldNameToString(testDataGenerationConfig, typeMeta, (Object[]) value, fieldName);
+        }
+        if (Map.class.isAssignableFrom(value.getClass())) {
+            return (T) addFieldNameToString(testDataGenerationConfig, typeMeta, (Map<?, ?>) value, fieldName);
+        }
+        return value;
+    }
+
     private NonParameterizedTypeDataGenerator<?> getMatchingGenerator(TypeMeta<?> typeMeta, Field field) {
         if (context.getCustomFieldMappingStorage().hasMapping(field)) {
             return context.getCustomFieldMappingStorage().getMapping(field);
@@ -105,12 +170,16 @@ public class PojoTestDataGenerator extends AbstractParameterizedTestDataGenerato
         return !Modifier.isStatic(field.getModifiers());
     }
 
-    private void setValue(Method matchingSetter, Object object, Object value) {
-        try {
-            matchingSetter.invoke(object, value);
-        } catch (ReflectiveOperationException roEx) {
-            log.error("Failed to set value via '{}' method.", matchingSetter.getName());
-        }
+    private <U, V, T extends Map.Entry<U, V>> Function<? super T, ? extends U> mapKeyFunction(
+            TestDataGenerationConfig testDataGenerationConfig, TypeMeta<?> typeMeta, String fieldName) {
+        return entry -> addFieldNameToString(testDataGenerationConfig, typeMeta.getGenericTypes()[0], entry.getKey(),
+                fieldName + "-Key");
+    }
+
+    private <U, V, T extends Map.Entry<U, V>> Function<? super T, ? extends V> mapValueFunction(
+            TestDataGenerationConfig testDataGenerationConfig, TypeMeta<?> typeMeta, String fieldName) {
+        return entry -> addFieldNameToString(testDataGenerationConfig, typeMeta.getGenericTypes()[1], entry.getValue(),
+                fieldName + "-Value");
     }
 
     private void setValue(TestDataGenerationConfig testDataGenerationConfig, TypeMeta<?> typeMeta, Object object,
@@ -120,8 +189,20 @@ public class PojoTestDataGenerator extends AbstractParameterizedTestDataGenerato
             NonParameterizedTypeDataGenerator<?> matchingGenerator = getMatchingGenerator(typeMeta, field);
             if (Objects.nonNull(matchingGenerator)) {
                 Object value = matchingGenerator.generate(testDataGenerationConfig);
+                if (!context.getCustomFieldMappingStorage().hasMapping(field)) {
+                    TypeMeta<?> fieldMeta = context.getFieldTypeResolver().resolveField(typeMeta, field);
+                    value = addFieldNameToString(testDataGenerationConfig, fieldMeta, value, field.getName());
+                }
                 setValue(matchingSetter, object, value);
             }
+        }
+    }
+
+    private void setValue(Method matchingSetter, Object object, Object value) {
+        try {
+            matchingSetter.invoke(object, value);
+        } catch (ReflectiveOperationException roEx) {
+            log.error("Failed to set value via '{}' method.", matchingSetter.getName());
         }
     }
 
@@ -135,5 +216,9 @@ public class PojoTestDataGenerator extends AbstractParameterizedTestDataGenerato
         if (hasCustomSuperclass(clazz)) {
             setValues(testDataGenerationConfig, typeMeta, clazz.getSuperclass(), object);
         }
+    }
+
+    private <T> BinaryOperator<T> throwingMerger() {
+        return (u, v) -> { throw new IllegalStateException(String.format("Duplicate key %s", u)); };
     }
 }
