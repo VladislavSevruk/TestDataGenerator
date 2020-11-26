@@ -42,7 +42,7 @@ public class SupportedTypesModel {
     private Integer integerField;
     private List<String> listField;
     private Long longField;
-    private Map<String, Integer> mapField;
+    private Map<String, String> mapField;
     private Set<String> setField;
     private Short shortField;
     private SimpleModel simpleModelField;

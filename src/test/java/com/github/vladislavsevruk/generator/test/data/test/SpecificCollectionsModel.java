@@ -36,9 +36,9 @@ import java.util.LinkedList;
 public class SpecificCollectionsModel {
 
     private AbstractList<String> abstractListField;
-    private AbstractMap<String, Integer> abstractMapField;
+    private AbstractMap<String, String> abstractMapField;
     private AbstractSet<String> abstractSetField;
-    private LinkedHashMap<String, Integer> linkedHashMapField;
+    private LinkedHashMap<String, String> linkedHashMapField;
     private LinkedHashSet<String> linkedHashSetField;
     private LinkedList<String> linkedListField;
 }
