@@ -66,6 +66,7 @@ dependencies {
 sonarqube {
     properties {
         property "sonar.projectKey", "VladislavSevruk_TestDataGenerator"
+        property "sonar.scanner.force-deprecated-java-version", "true"
     }
 }
 
