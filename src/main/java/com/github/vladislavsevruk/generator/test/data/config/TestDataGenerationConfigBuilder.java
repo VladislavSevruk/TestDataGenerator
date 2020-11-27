@@ -24,7 +24,7 @@
 package com.github.vladislavsevruk.generator.test.data.config;
 
 import com.github.vladislavsevruk.generator.test.data.exception.GenerationConfigurationException;
-import lombok.Data;
+import lombok.Setter;
 import lombok.experimental.Accessors;
 
 import java.util.Objects;
@@ -35,7 +35,7 @@ import java.util.Objects;
  * @see TestDataGenerationConfig
  */
 @Accessors(chain = true, fluent = true)
-@Data
+@Setter
 public final class TestDataGenerationConfigBuilder {
 
     private int maxItemsForCollections = 5;

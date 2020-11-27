@@ -13,6 +13,7 @@ This utility library helps to generate testing data for POJOs using various sett
 * [Usage](#usage)
   * [Non-parameterized classes](#non-parameterized-classes)
   * [Parameterized classes](#parameterized-classes)
+  * [Generation configuration](#generation-configuration)
 * [Customization](#customization)
   * [Adding custom test data generators](#adding-custom-test-data-generators)
   * [Adding custom field mappings](#adding-custom-field-mappings)
@@ -85,6 +86,24 @@ GenericModel<String> acceptorModel = new TestDataGenerator()
 Assertions.assertNotEquals(0, acceptorModel.getField1().size());
 Assertions.assertNotNull(acceptorModel.getField1().get(0));
 Assertions.assertNotNull(acceptorModel.getField2());
+```
+
+### Generation configuration
+You can override some default 
+[generation configuration](/src/main/java/com/github/vladislavsevruk/generator/test/data/config/TestDataGenerationConfig.java) 
+parameters:
+```kotlin
+TestDataGenerationConfig config = TestDataGenerationConfig.builder()
+        // sets prefix for literal values
+        .testDataPrefix("Prefix")
+        // sets postfix for literal values
+        .testDataPostfix("Postfix")
+        // sets min items number that will be generated for collections, maps and arrays
+        .minItemsForCollections(3)
+        // sets max items number that will be generated for collections, maps and arrays
+        .maxItemsForCollections(15).build();
+// generate model values
+TestModel testModel = new TestDataGenerator(config).generate(TestModel.class);
 ```
 
 ## Customization
