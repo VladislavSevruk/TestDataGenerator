@@ -35,7 +35,7 @@ import java.io.Serializable;
 import java.util.List;
 
 @ExtendWith(MockitoExtension.class)
-public class PostGenerationHookStorageImplTest {
+class PostGenerationHookStorageImplTest {
 
     private static final TypeMeta<Integer> DESCENDANT_TEST_TYPE_META = new TypeMeta<>(Integer.class);
     private static final TypeMeta<Number> TEST_TYPE_META = new TypeMeta<>(Number.class);

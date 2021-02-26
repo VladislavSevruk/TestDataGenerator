@@ -160,5 +160,6 @@ public interface PostGenerationHookStorage {
      * @param <T>    type of class to get hooks for.
      * @return <code>List</code> of <code>PostGenerationHook</code> for received type.
      */
+    @SuppressWarnings("java:S1452")
     <T> List<PostGenerationHook<? super T>> getAll(TypeMeta<T> target);
 }
