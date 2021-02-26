@@ -27,6 +27,7 @@ import com.github.vladislavsevruk.generator.test.data.engine.TestDataGenerationE
 import com.github.vladislavsevruk.generator.test.data.mapping.CustomFieldMappingStorage;
 import com.github.vladislavsevruk.generator.test.data.mapping.SetterMapper;
 import com.github.vladislavsevruk.generator.test.data.picker.TestDataGeneratorPicker;
+import com.github.vladislavsevruk.generator.test.data.storage.PostGenerationHookStorage;
 import com.github.vladislavsevruk.generator.test.data.storage.TestDataGeneratorStorage;
 import com.github.vladislavsevruk.resolver.resolver.executable.ExecutableTypeResolver;
 import com.github.vladislavsevruk.resolver.resolver.field.FieldTypeResolver;
@@ -46,12 +47,14 @@ public final class TestDataGenerationModuleFactory {
     private static final ReadWriteLock FIELD_MAPPING_STORAGE_LOCK = new ReentrantReadWriteLock();
     private static final ReadWriteLock FIELD_TYPE_RESOLVER_LOCK = new ReentrantReadWriteLock();
     private static final ReadWriteLock GENERATION_ENGINE_LOCK = new ReentrantReadWriteLock();
+    private static final ReadWriteLock POST_GENERATION_HOOK_STORAGE_LOCK = new ReentrantReadWriteLock();
     private static final ReadWriteLock SETTER_MAPPER_LOCK = new ReentrantReadWriteLock();
     private static final ReadWriteLock TYPE_GENERATOR_PICKER_LOCK = new ReentrantReadWriteLock();
     private static final ReadWriteLock TYPE_GENERATOR_STORAGE_LOCK = new ReentrantReadWriteLock();
     private static TestDataGenerationModuleFactoryMethod<CustomFieldMappingStorage> customFieldMappingStorage;
     private static TestDataGenerationModuleFactoryMethod<ExecutableTypeResolver<TypeMeta<?>>> executableTypeResolver;
     private static TestDataGenerationModuleFactoryMethod<FieldTypeResolver<TypeMeta<?>>> fieldTypeResolver;
+    private static TestDataGenerationModuleFactoryMethod<PostGenerationHookStorage> postGenerationHookStorage;
     private static TestDataGenerationModuleFactoryMethod<SetterMapper> setterMapper;
     private static TestDataGenerationModuleFactoryMethod<TestDataGenerationEngine> testDataGenerationEngine;
     private static TestDataGenerationModuleFactoryMethod<TestDataGeneratorPicker> testDataGeneratorPicker;
@@ -96,6 +99,18 @@ public final class TestDataGenerationModuleFactory {
                 = TestDataGenerationModuleFactory.fieldTypeResolver;
         FIELD_TYPE_RESOLVER_LOCK.readLock().unlock();
         return fieldTypeResolverToReturn;
+    }
+
+    /**
+     * Returns current instance of <code>TestDataGenerationModuleFactoryMethod</code> for
+     * <code>PostGenerationHookStorage</code>.
+     */
+    public static TestDataGenerationModuleFactoryMethod<PostGenerationHookStorage> postGenerationHookStorage() {
+        POST_GENERATION_HOOK_STORAGE_LOCK.readLock().lock();
+        TestDataGenerationModuleFactoryMethod<PostGenerationHookStorage> postGenerationHookStorageToReturn
+                = TestDataGenerationModuleFactory.postGenerationHookStorage;
+        POST_GENERATION_HOOK_STORAGE_LOCK.readLock().unlock();
+        return postGenerationHookStorageToReturn;
     }
 
     /**
@@ -150,6 +165,25 @@ public final class TestDataGenerationModuleFactory {
                 resolver == null ? null : resolver.getClass().getName()));
         TestDataGenerationModuleFactory.fieldTypeResolver = resolver;
         FIELD_TYPE_RESOLVER_LOCK.writeLock().unlock();
+        if (TestDataGenerationContextManager.isAutoRefreshContext()) {
+            TestDataGenerationContextManager.refreshContext();
+        }
+    }
+
+    /**
+     * Replaces instance of <code>TestDataGenerationModuleFactoryMethod</code> for <code>PostGenerationHookStorage</code>.
+     * All further generations will use new instance.
+     *
+     * @param storage new instance of <code>TestDataGenerationModuleFactoryMethod</code> for
+     *                <code>PostGenerationHookStorage</code>.
+     */
+    public static void replacePostGenerationHookStorage(
+            TestDataGenerationModuleFactoryMethod<PostGenerationHookStorage> storage) {
+        POST_GENERATION_HOOK_STORAGE_LOCK.writeLock().lock();
+        log.info(() -> String.format("Replacing PostGenerationHookStorage by '%s'.",
+                storage == null ? null : storage.getClass().getName()));
+        TestDataGenerationModuleFactory.postGenerationHookStorage = storage;
+        POST_GENERATION_HOOK_STORAGE_LOCK.writeLock().unlock();
         if (TestDataGenerationContextManager.isAutoRefreshContext()) {
             TestDataGenerationContextManager.refreshContext();
         }

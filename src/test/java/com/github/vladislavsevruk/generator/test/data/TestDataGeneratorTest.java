@@ -23,8 +23,12 @@
  */
 package com.github.vladislavsevruk.generator.test.data;
 
+import com.github.vladislavsevruk.generator.test.data.context.ContextUtil;
+import com.github.vladislavsevruk.generator.test.data.context.TestDataGenerationContext;
+import com.github.vladislavsevruk.generator.test.data.hook.PostGenerationHook;
 import com.github.vladislavsevruk.generator.test.data.test.DescendantModel;
 import com.github.vladislavsevruk.generator.test.data.test.ParameterizedModel;
+import com.github.vladislavsevruk.generator.test.data.test.ParameterizedSuperclassModel;
 import com.github.vladislavsevruk.generator.test.data.test.SimpleModel;
 import com.github.vladislavsevruk.generator.test.data.test.SpecificCollectionsModel;
 import com.github.vladislavsevruk.generator.test.data.test.SupportedTypesModel;
@@ -34,6 +38,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -46,6 +51,23 @@ class TestDataGeneratorTest {
         Assertions.assertNotNull(model);
         Assertions.assertNotNull(model.getStringField());
         assertCollection(model.getParameterizedField());
+    }
+
+    @Test
+    void postGenerationHookTest() {
+        TestDataGenerationContext context = ContextUtil.newContext();
+        String hookValue = "hookValue";
+        PostGenerationHook<DescendantModel> descendantHook = model -> model.setStringField(hookValue);
+        PostGenerationHook<ParameterizedSuperclassModel<List<String>>> superclassHook = model -> model
+                .setParameterizedField(Collections.singletonList(hookValue));
+        context.getPostGenerationHookStorage().add(DescendantModel.class, descendantHook);
+        context.getPostGenerationHookStorage()
+                .add(new TypeProvider<ParameterizedSuperclassModel<List<String>>>() {}, superclassHook);
+        DescendantModel model = new TestDataGenerator(context).generate(DescendantModel.class);
+        Assertions.assertEquals(hookValue, model.getStringField());
+        Assertions.assertNotNull(model.getParameterizedField());
+        Assertions.assertEquals(1, model.getParameterizedField().size());
+        Assertions.assertEquals(hookValue, model.getParameterizedField().get(0));
     }
 
     @Test

@@ -27,6 +27,7 @@ import com.github.vladislavsevruk.generator.test.data.engine.TestDataGenerationE
 import com.github.vladislavsevruk.generator.test.data.mapping.CustomFieldMappingStorage;
 import com.github.vladislavsevruk.generator.test.data.mapping.SetterMapper;
 import com.github.vladislavsevruk.generator.test.data.picker.TestDataGeneratorPicker;
+import com.github.vladislavsevruk.generator.test.data.storage.PostGenerationHookStorage;
 import com.github.vladislavsevruk.generator.test.data.storage.TestDataGeneratorStorage;
 import com.github.vladislavsevruk.resolver.resolver.executable.ExecutableTypeResolver;
 import com.github.vladislavsevruk.resolver.resolver.field.FieldTypeResolver;
@@ -50,6 +51,8 @@ class TestDataGenerationModuleFactoryTest {
     private ExecutableTypeResolver<TypeMeta<?>> executableTypeResolver;
     @Mock
     private FieldTypeResolver<TypeMeta<?>> fieldTypeResolver;
+    @Mock
+    private PostGenerationHookStorage postGenerationHookStorage;
     @Mock
     private SetterMapper setterMapper;
     @Mock
@@ -97,7 +100,14 @@ class TestDataGenerationModuleFactoryTest {
     }
 
     @Test
-    void replaceGetterSetterMapperTest() {
+    void replacePostGenerationHookStorageTest() {
+        TestDataGenerationModuleFactoryMethod<PostGenerationHookStorage> factoryMethod = context -> postGenerationHookStorage;
+        TestDataGenerationModuleFactory.replacePostGenerationHookStorage(factoryMethod);
+        Assertions.assertEquals(factoryMethod, TestDataGenerationModuleFactory.postGenerationHookStorage());
+    }
+
+    @Test
+    void replaceSetterMapperTest() {
         TestDataGenerationModuleFactoryMethod<SetterMapper> factoryMethod = context -> setterMapper;
         TestDataGenerationModuleFactory.replaceSetterMapper(factoryMethod);
         Assertions.assertEquals(factoryMethod, TestDataGenerationModuleFactory.setterMapper());

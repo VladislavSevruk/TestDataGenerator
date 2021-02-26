@@ -33,6 +33,7 @@ import java.util.List;
  * Contains generators for test data generation for specific types.
  *
  * @see NonParameterizedTypeDataGenerator
+ * @see ParameterizedTypeDataGenerator
  */
 public interface TestDataGeneratorStorage {
 

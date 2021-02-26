@@ -31,6 +31,8 @@ import com.github.vladislavsevruk.generator.test.data.mapping.SetterMapper;
 import com.github.vladislavsevruk.generator.test.data.mapping.SetterMapperImpl;
 import com.github.vladislavsevruk.generator.test.data.picker.TestDataGeneratorPicker;
 import com.github.vladislavsevruk.generator.test.data.picker.TestDataGeneratorPickerImpl;
+import com.github.vladislavsevruk.generator.test.data.storage.PostGenerationHookStorage;
+import com.github.vladislavsevruk.generator.test.data.storage.PostGenerationHookStorageImpl;
 import com.github.vladislavsevruk.generator.test.data.storage.TestDataGeneratorStorage;
 import com.github.vladislavsevruk.generator.test.data.storage.TestDataGeneratorStorageImpl;
 import com.github.vladislavsevruk.resolver.resolver.executable.ExecutableTypeMetaResolver;
@@ -54,6 +56,8 @@ class TestDataGenerationContextImplTest {
     @Mock
     private FieldTypeResolver<TypeMeta<?>> fieldTypeResolver;
     @Mock
+    private PostGenerationHookStorage postGenerationHookStorage;
+    @Mock
     private SetterMapper setterMapper;
     @Mock
     private TestDataGenerationEngine testDataGenerationEngine;
@@ -65,13 +69,15 @@ class TestDataGenerationContextImplTest {
     @Test
     void customCustomFieldMappingStorageFactoryMethodReturnsNullTest() {
         TestDataGenerationContext testDataGenerationContext = new TestDataGenerationContextImpl(context -> null, null,
-                null, null, null, null, null);
+                null, null, null, null, null, null);
         Assertions.assertEquals(CustomFieldMappingStorageImpl.class,
                 testDataGenerationContext.getCustomFieldMappingStorage().getClass());
         Assertions.assertEquals(ExecutableTypeMetaResolver.class,
                 testDataGenerationContext.getExecutableTypeResolver().getClass());
         Assertions
                 .assertEquals(FieldTypeMetaResolver.class, testDataGenerationContext.getFieldTypeResolver().getClass());
+        Assertions.assertEquals(PostGenerationHookStorageImpl.class,
+                testDataGenerationContext.getPostGenerationHookStorage().getClass());
         Assertions.assertEquals(SetterMapperImpl.class, testDataGenerationContext.getSetterMapper().getClass());
         Assertions.assertEquals(TestDataGenerationEngineImpl.class,
                 testDataGenerationContext.getTestDataGenerationEngine().getClass());
@@ -84,12 +90,14 @@ class TestDataGenerationContextImplTest {
     @Test
     void customCustomFieldMappingStorageTest() {
         TestDataGenerationContext testDataGenerationContext = new TestDataGenerationContextImpl(
-                context -> customFieldMappingStorage, null, null, null, null, null, null);
+                context -> customFieldMappingStorage, null, null, null, null, null, null, null);
         Assertions.assertEquals(customFieldMappingStorage, testDataGenerationContext.getCustomFieldMappingStorage());
         Assertions.assertEquals(ExecutableTypeMetaResolver.class,
                 testDataGenerationContext.getExecutableTypeResolver().getClass());
         Assertions
                 .assertEquals(FieldTypeMetaResolver.class, testDataGenerationContext.getFieldTypeResolver().getClass());
+        Assertions.assertEquals(PostGenerationHookStorageImpl.class,
+                testDataGenerationContext.getPostGenerationHookStorage().getClass());
         Assertions.assertEquals(SetterMapperImpl.class, testDataGenerationContext.getSetterMapper().getClass());
         Assertions.assertEquals(TestDataGenerationEngineImpl.class,
                 testDataGenerationContext.getTestDataGenerationEngine().getClass());
@@ -102,13 +110,15 @@ class TestDataGenerationContextImplTest {
     @Test
     void customExecutableTypeResolverFactoryMethodReturnsNullTest() {
         TestDataGenerationContext testDataGenerationContext = new TestDataGenerationContextImpl(null, context -> null,
-                null, null, null, null, null);
+                null, null, null, null, null, null);
         Assertions.assertEquals(CustomFieldMappingStorageImpl.class,
                 testDataGenerationContext.getCustomFieldMappingStorage().getClass());
         Assertions.assertEquals(ExecutableTypeMetaResolver.class,
                 testDataGenerationContext.getExecutableTypeResolver().getClass());
         Assertions
                 .assertEquals(FieldTypeMetaResolver.class, testDataGenerationContext.getFieldTypeResolver().getClass());
+        Assertions.assertEquals(PostGenerationHookStorageImpl.class,
+                testDataGenerationContext.getPostGenerationHookStorage().getClass());
         Assertions.assertEquals(SetterMapperImpl.class, testDataGenerationContext.getSetterMapper().getClass());
         Assertions.assertEquals(TestDataGenerationEngineImpl.class,
                 testDataGenerationContext.getTestDataGenerationEngine().getClass());
@@ -121,12 +131,14 @@ class TestDataGenerationContextImplTest {
     @Test
     void customExecutableTypeResolverTest() {
         TestDataGenerationContext testDataGenerationContext = new TestDataGenerationContextImpl(null,
-                context -> executableTypeResolver, null, null, null, null, null);
+                context -> executableTypeResolver, null, null, null, null, null, null);
         Assertions.assertEquals(CustomFieldMappingStorageImpl.class,
                 testDataGenerationContext.getCustomFieldMappingStorage().getClass());
         Assertions.assertEquals(executableTypeResolver, testDataGenerationContext.getExecutableTypeResolver());
         Assertions
                 .assertEquals(FieldTypeMetaResolver.class, testDataGenerationContext.getFieldTypeResolver().getClass());
+        Assertions.assertEquals(PostGenerationHookStorageImpl.class,
+                testDataGenerationContext.getPostGenerationHookStorage().getClass());
         Assertions.assertEquals(SetterMapperImpl.class, testDataGenerationContext.getSetterMapper().getClass());
         Assertions.assertEquals(TestDataGenerationEngineImpl.class,
                 testDataGenerationContext.getTestDataGenerationEngine().getClass());
@@ -139,13 +151,15 @@ class TestDataGenerationContextImplTest {
     @Test
     void customFieldTypeResolverFactoryMethodReturnsNullTest() {
         TestDataGenerationContext testDataGenerationContext = new TestDataGenerationContextImpl(null, null,
-                context -> null, null, null, null, null);
+                context -> null, null, null, null, null, null);
         Assertions.assertEquals(CustomFieldMappingStorageImpl.class,
                 testDataGenerationContext.getCustomFieldMappingStorage().getClass());
         Assertions.assertEquals(ExecutableTypeMetaResolver.class,
                 testDataGenerationContext.getExecutableTypeResolver().getClass());
         Assertions
                 .assertEquals(FieldTypeMetaResolver.class, testDataGenerationContext.getFieldTypeResolver().getClass());
+        Assertions.assertEquals(PostGenerationHookStorageImpl.class,
+                testDataGenerationContext.getPostGenerationHookStorage().getClass());
         Assertions.assertEquals(SetterMapperImpl.class, testDataGenerationContext.getSetterMapper().getClass());
         Assertions.assertEquals(TestDataGenerationEngineImpl.class,
                 testDataGenerationContext.getTestDataGenerationEngine().getClass());
@@ -158,12 +172,14 @@ class TestDataGenerationContextImplTest {
     @Test
     void customFieldTypeResolverTest() {
         TestDataGenerationContext testDataGenerationContext = new TestDataGenerationContextImpl(null, null,
-                context -> fieldTypeResolver, null, null, null, null);
+                context -> fieldTypeResolver, null, null, null, null, null);
         Assertions.assertEquals(CustomFieldMappingStorageImpl.class,
                 testDataGenerationContext.getCustomFieldMappingStorage().getClass());
         Assertions.assertEquals(ExecutableTypeMetaResolver.class,
                 testDataGenerationContext.getExecutableTypeResolver().getClass());
         Assertions.assertEquals(fieldTypeResolver, testDataGenerationContext.getFieldTypeResolver());
+        Assertions.assertEquals(PostGenerationHookStorageImpl.class,
+                testDataGenerationContext.getPostGenerationHookStorage().getClass());
         Assertions.assertEquals(SetterMapperImpl.class, testDataGenerationContext.getSetterMapper().getClass());
         Assertions.assertEquals(TestDataGenerationEngineImpl.class,
                 testDataGenerationContext.getTestDataGenerationEngine().getClass());
@@ -176,13 +192,16 @@ class TestDataGenerationContextImplTest {
     @Test
     void customModulesFactoryMethodReturnNullTest() {
         TestDataGenerationContext testDataGenerationContext = new TestDataGenerationContextImpl(context -> null,
-                context -> null, context -> null, context -> null, context -> null, context -> null, context -> null);
+                context -> null, context -> null, context -> null, context -> null, context -> null, context -> null,
+                context -> null);
         Assertions.assertEquals(CustomFieldMappingStorageImpl.class,
                 testDataGenerationContext.getCustomFieldMappingStorage().getClass());
         Assertions.assertEquals(ExecutableTypeMetaResolver.class,
                 testDataGenerationContext.getExecutableTypeResolver().getClass());
         Assertions
                 .assertEquals(FieldTypeMetaResolver.class, testDataGenerationContext.getFieldTypeResolver().getClass());
+        Assertions.assertEquals(PostGenerationHookStorageImpl.class,
+                testDataGenerationContext.getPostGenerationHookStorage().getClass());
         Assertions.assertEquals(SetterMapperImpl.class, testDataGenerationContext.getSetterMapper().getClass());
         Assertions.assertEquals(TestDataGenerationEngineImpl.class,
                 testDataGenerationContext.getTestDataGenerationEngine().getClass());
@@ -196,11 +215,12 @@ class TestDataGenerationContextImplTest {
     void customModulesTest() {
         TestDataGenerationContext testDataGenerationContext = new TestDataGenerationContextImpl(
                 context -> customFieldMappingStorage, context -> executableTypeResolver, context -> fieldTypeResolver,
-                context -> setterMapper, context -> testDataGenerationEngine, context -> testDataGeneratorPicker,
-                context -> testDataGeneratorStorage);
+                context -> postGenerationHookStorage, context -> setterMapper, context -> testDataGenerationEngine,
+                context -> testDataGeneratorPicker, context -> testDataGeneratorStorage);
         Assertions.assertEquals(customFieldMappingStorage, testDataGenerationContext.getCustomFieldMappingStorage());
         Assertions.assertEquals(executableTypeResolver, testDataGenerationContext.getExecutableTypeResolver());
         Assertions.assertEquals(fieldTypeResolver, testDataGenerationContext.getFieldTypeResolver());
+        Assertions.assertEquals(postGenerationHookStorage, testDataGenerationContext.getPostGenerationHookStorage());
         Assertions.assertEquals(setterMapper, testDataGenerationContext.getSetterMapper());
         Assertions.assertEquals(testDataGenerationEngine, testDataGenerationContext.getTestDataGenerationEngine());
         Assertions.assertEquals(testDataGeneratorPicker, testDataGenerationContext.getTestDataGeneratorPicker());
@@ -208,15 +228,58 @@ class TestDataGenerationContextImplTest {
     }
 
     @Test
-    void customSetterMapperFactoryMethodReturnsNullTest() {
+    void customPostGenerationHookStorageFactoryMethodReturnsNullTest() {
         TestDataGenerationContext testDataGenerationContext = new TestDataGenerationContextImpl(null, null, null,
-                context -> null, null, null, null);
+                context -> null, null, null, null, null);
         Assertions.assertEquals(CustomFieldMappingStorageImpl.class,
                 testDataGenerationContext.getCustomFieldMappingStorage().getClass());
         Assertions.assertEquals(ExecutableTypeMetaResolver.class,
                 testDataGenerationContext.getExecutableTypeResolver().getClass());
         Assertions
                 .assertEquals(FieldTypeMetaResolver.class, testDataGenerationContext.getFieldTypeResolver().getClass());
+        Assertions.assertEquals(PostGenerationHookStorageImpl.class,
+                testDataGenerationContext.getPostGenerationHookStorage().getClass());
+        Assertions.assertEquals(SetterMapperImpl.class, testDataGenerationContext.getSetterMapper().getClass());
+        Assertions.assertEquals(TestDataGenerationEngineImpl.class,
+                testDataGenerationContext.getTestDataGenerationEngine().getClass());
+        Assertions.assertEquals(TestDataGeneratorPickerImpl.class,
+                testDataGenerationContext.getTestDataGeneratorPicker().getClass());
+        Assertions.assertEquals(TestDataGeneratorStorageImpl.class,
+                testDataGenerationContext.getTestDataGeneratorStorage().getClass());
+    }
+
+    @Test
+    void customPostGenerationHookStorageFactoryMethodTest() {
+        TestDataGenerationContext testDataGenerationContext = new TestDataGenerationContextImpl(null, null, null,
+                context -> null, null, null, null, null);
+        Assertions.assertEquals(CustomFieldMappingStorageImpl.class,
+                testDataGenerationContext.getCustomFieldMappingStorage().getClass());
+        Assertions.assertEquals(ExecutableTypeMetaResolver.class,
+                testDataGenerationContext.getExecutableTypeResolver().getClass());
+        Assertions
+                .assertEquals(FieldTypeMetaResolver.class, testDataGenerationContext.getFieldTypeResolver().getClass());
+        Assertions.assertEquals(PostGenerationHookStorageImpl.class,
+                testDataGenerationContext.getPostGenerationHookStorage().getClass());
+        Assertions.assertEquals(SetterMapperImpl.class, testDataGenerationContext.getSetterMapper().getClass());
+        Assertions.assertEquals(TestDataGenerationEngineImpl.class,
+                testDataGenerationContext.getTestDataGenerationEngine().getClass());
+        Assertions.assertEquals(TestDataGeneratorPickerImpl.class,
+                testDataGenerationContext.getTestDataGeneratorPicker().getClass());
+        Assertions.assertEquals(TestDataGeneratorStorageImpl.class,
+                testDataGenerationContext.getTestDataGeneratorStorage().getClass());
+    }
+
+    @Test
+    void customSetterMapperFactoryMethodReturnsNullTest() {
+        TestDataGenerationContext testDataGenerationContext = new TestDataGenerationContextImpl(null, null, null,
+                context -> postGenerationHookStorage, null, null, null, null);
+        Assertions.assertEquals(CustomFieldMappingStorageImpl.class,
+                testDataGenerationContext.getCustomFieldMappingStorage().getClass());
+        Assertions.assertEquals(ExecutableTypeMetaResolver.class,
+                testDataGenerationContext.getExecutableTypeResolver().getClass());
+        Assertions
+                .assertEquals(FieldTypeMetaResolver.class, testDataGenerationContext.getFieldTypeResolver().getClass());
+        Assertions.assertEquals(postGenerationHookStorage, testDataGenerationContext.getPostGenerationHookStorage());
         Assertions.assertEquals(SetterMapperImpl.class, testDataGenerationContext.getSetterMapper().getClass());
         Assertions.assertEquals(TestDataGenerationEngineImpl.class,
                 testDataGenerationContext.getTestDataGenerationEngine().getClass());
@@ -228,7 +291,7 @@ class TestDataGenerationContextImplTest {
 
     @Test
     void customSetterMapperTest() {
-        TestDataGenerationContext testDataGenerationContext = new TestDataGenerationContextImpl(null, null, null,
+        TestDataGenerationContext testDataGenerationContext = new TestDataGenerationContextImpl(null, null, null, null,
                 context -> setterMapper, null, null, null);
         Assertions.assertEquals(CustomFieldMappingStorageImpl.class,
                 testDataGenerationContext.getCustomFieldMappingStorage().getClass());
@@ -236,6 +299,8 @@ class TestDataGenerationContextImplTest {
                 testDataGenerationContext.getExecutableTypeResolver().getClass());
         Assertions
                 .assertEquals(FieldTypeMetaResolver.class, testDataGenerationContext.getFieldTypeResolver().getClass());
+        Assertions.assertEquals(PostGenerationHookStorageImpl.class,
+                testDataGenerationContext.getPostGenerationHookStorage().getClass());
         Assertions.assertEquals(setterMapper, testDataGenerationContext.getSetterMapper());
         Assertions.assertEquals(TestDataGenerationEngineImpl.class,
                 testDataGenerationContext.getTestDataGenerationEngine().getClass());
@@ -248,13 +313,15 @@ class TestDataGenerationContextImplTest {
     @Test
     void customTestDataGenerationEngineFactoryMethodReturnsNullTest() {
         TestDataGenerationContext testDataGenerationContext = new TestDataGenerationContextImpl(null, null, null, null,
-                context -> null, null, null);
+                null, context -> null, null, null);
         Assertions.assertEquals(CustomFieldMappingStorageImpl.class,
                 testDataGenerationContext.getCustomFieldMappingStorage().getClass());
         Assertions.assertEquals(ExecutableTypeMetaResolver.class,
                 testDataGenerationContext.getExecutableTypeResolver().getClass());
         Assertions
                 .assertEquals(FieldTypeMetaResolver.class, testDataGenerationContext.getFieldTypeResolver().getClass());
+        Assertions.assertEquals(PostGenerationHookStorageImpl.class,
+                testDataGenerationContext.getPostGenerationHookStorage().getClass());
         Assertions.assertEquals(SetterMapperImpl.class, testDataGenerationContext.getSetterMapper().getClass());
         Assertions.assertEquals(TestDataGenerationEngineImpl.class,
                 testDataGenerationContext.getTestDataGenerationEngine().getClass());
@@ -267,13 +334,15 @@ class TestDataGenerationContextImplTest {
     @Test
     void customTestDataGenerationEngineTest() {
         TestDataGenerationContext testDataGenerationContext = new TestDataGenerationContextImpl(null, null, null, null,
-                context -> testDataGenerationEngine, null, null);
+                null, context -> testDataGenerationEngine, null, null);
         Assertions.assertEquals(CustomFieldMappingStorageImpl.class,
                 testDataGenerationContext.getCustomFieldMappingStorage().getClass());
         Assertions.assertEquals(ExecutableTypeMetaResolver.class,
                 testDataGenerationContext.getExecutableTypeResolver().getClass());
         Assertions
                 .assertEquals(FieldTypeMetaResolver.class, testDataGenerationContext.getFieldTypeResolver().getClass());
+        Assertions.assertEquals(PostGenerationHookStorageImpl.class,
+                testDataGenerationContext.getPostGenerationHookStorage().getClass());
         Assertions.assertEquals(SetterMapperImpl.class, testDataGenerationContext.getSetterMapper().getClass());
         Assertions.assertEquals(testDataGenerationEngine, testDataGenerationContext.getTestDataGenerationEngine());
         Assertions.assertEquals(TestDataGeneratorPickerImpl.class,
@@ -285,13 +354,15 @@ class TestDataGenerationContextImplTest {
     @Test
     void customTestDataGeneratorPickerFactoryMethodReturnsNullTest() {
         TestDataGenerationContext testDataGenerationContext = new TestDataGenerationContextImpl(null, null, null, null,
-                null, context -> null, null);
+                null, null, context -> null, null);
         Assertions.assertEquals(CustomFieldMappingStorageImpl.class,
                 testDataGenerationContext.getCustomFieldMappingStorage().getClass());
         Assertions.assertEquals(ExecutableTypeMetaResolver.class,
                 testDataGenerationContext.getExecutableTypeResolver().getClass());
         Assertions
                 .assertEquals(FieldTypeMetaResolver.class, testDataGenerationContext.getFieldTypeResolver().getClass());
+        Assertions.assertEquals(PostGenerationHookStorageImpl.class,
+                testDataGenerationContext.getPostGenerationHookStorage().getClass());
         Assertions.assertEquals(SetterMapperImpl.class, testDataGenerationContext.getSetterMapper().getClass());
         Assertions.assertEquals(TestDataGenerationEngineImpl.class,
                 testDataGenerationContext.getTestDataGenerationEngine().getClass());
@@ -304,13 +375,15 @@ class TestDataGenerationContextImplTest {
     @Test
     void customTestDataGeneratorPickerTest() {
         TestDataGenerationContext testDataGenerationContext = new TestDataGenerationContextImpl(null, null, null, null,
-                null, context -> testDataGeneratorPicker, null);
+                null, null, context -> testDataGeneratorPicker, null);
         Assertions.assertEquals(CustomFieldMappingStorageImpl.class,
                 testDataGenerationContext.getCustomFieldMappingStorage().getClass());
         Assertions.assertEquals(ExecutableTypeMetaResolver.class,
                 testDataGenerationContext.getExecutableTypeResolver().getClass());
         Assertions
                 .assertEquals(FieldTypeMetaResolver.class, testDataGenerationContext.getFieldTypeResolver().getClass());
+        Assertions.assertEquals(PostGenerationHookStorageImpl.class,
+                testDataGenerationContext.getPostGenerationHookStorage().getClass());
         Assertions.assertEquals(SetterMapperImpl.class, testDataGenerationContext.getSetterMapper().getClass());
         Assertions.assertEquals(TestDataGenerationEngineImpl.class,
                 testDataGenerationContext.getTestDataGenerationEngine().getClass());
@@ -322,13 +395,15 @@ class TestDataGenerationContextImplTest {
     @Test
     void customTestDataGeneratorStorageFactoryMethodReturnsNullTest() {
         TestDataGenerationContext testDataGenerationContext = new TestDataGenerationContextImpl(null, null, null, null,
-                null, null, context -> null);
+                null, null, null, context -> null);
         Assertions.assertEquals(CustomFieldMappingStorageImpl.class,
                 testDataGenerationContext.getCustomFieldMappingStorage().getClass());
         Assertions.assertEquals(ExecutableTypeMetaResolver.class,
                 testDataGenerationContext.getExecutableTypeResolver().getClass());
         Assertions
                 .assertEquals(FieldTypeMetaResolver.class, testDataGenerationContext.getFieldTypeResolver().getClass());
+        Assertions.assertEquals(PostGenerationHookStorageImpl.class,
+                testDataGenerationContext.getPostGenerationHookStorage().getClass());
         Assertions.assertEquals(SetterMapperImpl.class, testDataGenerationContext.getSetterMapper().getClass());
         Assertions.assertEquals(TestDataGenerationEngineImpl.class,
                 testDataGenerationContext.getTestDataGenerationEngine().getClass());
@@ -341,13 +416,15 @@ class TestDataGenerationContextImplTest {
     @Test
     void customTestDataGeneratorStorageTest() {
         TestDataGenerationContext testDataGenerationContext = new TestDataGenerationContextImpl(null, null, null, null,
-                null, null, context -> testDataGeneratorStorage);
+                null, null, null, context -> testDataGeneratorStorage);
         Assertions.assertEquals(CustomFieldMappingStorageImpl.class,
                 testDataGenerationContext.getCustomFieldMappingStorage().getClass());
         Assertions.assertEquals(ExecutableTypeMetaResolver.class,
                 testDataGenerationContext.getExecutableTypeResolver().getClass());
         Assertions
                 .assertEquals(FieldTypeMetaResolver.class, testDataGenerationContext.getFieldTypeResolver().getClass());
+        Assertions.assertEquals(PostGenerationHookStorageImpl.class,
+                testDataGenerationContext.getPostGenerationHookStorage().getClass());
         Assertions.assertEquals(SetterMapperImpl.class, testDataGenerationContext.getSetterMapper().getClass());
         Assertions.assertEquals(TestDataGenerationEngineImpl.class,
                 testDataGenerationContext.getTestDataGenerationEngine().getClass());
@@ -359,13 +436,15 @@ class TestDataGenerationContextImplTest {
     @Test
     void defaultModulesTest() {
         TestDataGenerationContext testDataGenerationContext = new TestDataGenerationContextImpl(null, null, null, null,
-                null, null, null);
+                null, null, null, null);
         Assertions.assertEquals(CustomFieldMappingStorageImpl.class,
                 testDataGenerationContext.getCustomFieldMappingStorage().getClass());
         Assertions.assertEquals(ExecutableTypeMetaResolver.class,
                 testDataGenerationContext.getExecutableTypeResolver().getClass());
         Assertions
                 .assertEquals(FieldTypeMetaResolver.class, testDataGenerationContext.getFieldTypeResolver().getClass());
+        Assertions.assertEquals(PostGenerationHookStorageImpl.class,
+                testDataGenerationContext.getPostGenerationHookStorage().getClass());
         Assertions.assertEquals(SetterMapperImpl.class, testDataGenerationContext.getSetterMapper().getClass());
         Assertions.assertEquals(TestDataGenerationEngineImpl.class,
                 testDataGenerationContext.getTestDataGenerationEngine().getClass());

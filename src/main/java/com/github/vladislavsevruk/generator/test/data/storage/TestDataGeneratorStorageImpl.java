@@ -56,13 +56,14 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * Implementation of <code>TestDataGeneratorStorage</code>.
  *
  * @see NonParameterizedTypeDataGenerator
+ * @see ParameterizedTypeDataGenerator
  * @see TestDataGeneratorStorage
  */
 @Log4j2
 public final class TestDataGeneratorStorageImpl implements TestDataGeneratorStorage {
 
-    private static final ReadWriteLock GENERATORS_LOCK = new ReentrantReadWriteLock();
-    private List<DataGenerator> generators = new LinkedList<>();
+    private final ReadWriteLock generatorsLock = new ReentrantReadWriteLock();
+    private final List<DataGenerator> generators = new LinkedList<>();
 
     /**
      * Sets up list of active generators and unmodifiable list of default generators.
@@ -78,9 +79,9 @@ public final class TestDataGeneratorStorageImpl implements TestDataGeneratorStor
      */
     @Override
     public void add(NonParameterizedTypeDataGenerator<?> customGenerator) {
-        GENERATORS_LOCK.writeLock().lock();
+        generatorsLock.writeLock().lock();
         add((DataGenerator) customGenerator);
-        GENERATORS_LOCK.writeLock().unlock();
+        generatorsLock.writeLock().unlock();
     }
 
     /**
@@ -88,9 +89,9 @@ public final class TestDataGeneratorStorageImpl implements TestDataGeneratorStor
      */
     @Override
     public void add(ParameterizedTypeDataGenerator<?> customGenerator) {
-        GENERATORS_LOCK.writeLock().lock();
+        generatorsLock.writeLock().lock();
         add((DataGenerator) customGenerator);
-        GENERATORS_LOCK.writeLock().unlock();
+        generatorsLock.writeLock().unlock();
     }
 
     /**
@@ -133,10 +134,10 @@ public final class TestDataGeneratorStorageImpl implements TestDataGeneratorStor
      */
     @Override
     public List<DataGenerator> getAll() {
-        GENERATORS_LOCK.readLock().lock();
+        generatorsLock.readLock().lock();
         List<DataGenerator> generatorsList = generators.isEmpty() ? Collections.emptyList()
                 : new ArrayList<>(generators);
-        GENERATORS_LOCK.readLock().unlock();
+        generatorsLock.readLock().unlock();
         return generatorsList;
     }
 
@@ -157,7 +158,7 @@ public final class TestDataGeneratorStorageImpl implements TestDataGeneratorStor
     }
 
     private void addAfter(DataGenerator customGenerator, Class<? extends DataGenerator> targetType) {
-        GENERATORS_LOCK.writeLock().lock();
+        generatorsLock.writeLock().lock();
         int targetTypeIndex = ClassUtil.getIndexOfType(generators, targetType);
         if (targetTypeIndex == -1) {
             log.info("Target type is not present at list, generator will be added to list end.");
@@ -165,11 +166,11 @@ public final class TestDataGeneratorStorageImpl implements TestDataGeneratorStor
         } else {
             add(targetTypeIndex + 1, customGenerator);
         }
-        GENERATORS_LOCK.writeLock().unlock();
+        generatorsLock.writeLock().unlock();
     }
 
     private void addBefore(DataGenerator customGenerator, Class<? extends DataGenerator> targetType) {
-        GENERATORS_LOCK.writeLock().lock();
+        generatorsLock.writeLock().lock();
         int targetTypeIndex = ClassUtil.getIndexOfType(generators, targetType);
         if (targetTypeIndex == -1) {
             log.info("Target type is not present at list, generator will be added to list end.");
@@ -177,7 +178,7 @@ public final class TestDataGeneratorStorageImpl implements TestDataGeneratorStor
         } else {
             add(targetTypeIndex, customGenerator);
         }
-        GENERATORS_LOCK.writeLock().unlock();
+        generatorsLock.writeLock().unlock();
     }
 
     private void addDefaultGenerators(TestDataGenerationContext generationContext) {
