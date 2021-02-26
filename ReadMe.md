@@ -17,6 +17,7 @@ This utility library helps to generate testing data for POJOs using various sett
 * [Customization](#customization)
   * [Adding custom test data generators](#adding-custom-test-data-generators)
   * [Adding custom field mappings](#adding-custom-field-mappings)
+  * [Adding post generation hooks](#adding-post-generation-hooks)
 * [License](#license)
 
 ## Getting started
@@ -28,13 +29,13 @@ Add the following dependency to your pom.xml:
 <dependency>
       <groupId>com.github.vladislavsevruk</groupId>
       <artifactId>test-data-generator</artifactId>
-      <version>1.0.0</version>
+      <version>1.0.1</version>
 </dependency>
 ```
 ### Gradle
 Add the following dependency to your build.gradle:
 ```groovy
-implementation 'com.github.vladislavsevruk:test-data-generator:1.0.0'
+implementation 'com.github.vladislavsevruk:test-data-generator:1.0.1'
 ```
 
 ## Usage
@@ -128,6 +129,28 @@ using ``addMapping`` method:
 Field field = TestModel.class.getDeclaredField("field2");
 TestDataGenerationContextManager.getContext().getCustomFieldMappingStorage()
         .addMapping(field, config -> 15);
+```
+
+### Adding post generation hooks
+If generation logic of some field value require generated values from another fields or you want to trigger some action 
+after fields values are generated you can implement [PostGenerationHook](/src/main/java/com/github/vladislavsevruk/generator/test/data/hook/PostGenerationHook.java)
+and add it to [PostGenerationHookStorage](/src/main/java/com/github/vladislavsevruk/generator/test/data/storage/PostGenerationHookStorage.java)
+using one of ``add``, ``addBefore`` or ``addAfter`` methods:
+```java
+public class OrderModel {
+
+    private String id;
+    private String title;
+    private Long timestamp;
+
+    // getters and setters
+}
+```
+```kotlin
+PostGenerationHook<OrderModel> postGenerationHook 
+        = model -> model.setId(model.getTitle() + "_" + model.getTimestamp());
+TestDataGenerationContextManager.getContext().getPostGenerationHookStorage()
+        .add(OrderModel.class, postGenerationHook);
 ```
 
 ## License

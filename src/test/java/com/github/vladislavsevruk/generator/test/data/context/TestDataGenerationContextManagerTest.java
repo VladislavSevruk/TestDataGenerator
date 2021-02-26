@@ -27,13 +27,15 @@ import com.github.vladislavsevruk.generator.test.data.engine.TestDataGenerationE
 import com.github.vladislavsevruk.generator.test.data.mapping.CustomFieldMappingStorage;
 import com.github.vladislavsevruk.generator.test.data.mapping.SetterMapper;
 import com.github.vladislavsevruk.generator.test.data.picker.TestDataGeneratorPicker;
+import com.github.vladislavsevruk.generator.test.data.storage.PostGenerationHookStorage;
 import com.github.vladislavsevruk.generator.test.data.storage.TestDataGeneratorStorage;
 import com.github.vladislavsevruk.resolver.resolver.executable.ExecutableTypeResolver;
 import com.github.vladislavsevruk.resolver.resolver.field.FieldTypeResolver;
 import com.github.vladislavsevruk.resolver.type.TypeMeta;
-import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -49,6 +51,8 @@ class TestDataGenerationContextManagerTest {
     @Mock
     private FieldTypeResolver<TypeMeta<?>> fieldTypeResolver;
     @Mock
+    private PostGenerationHookStorage postGenerationHookStorage;
+    @Mock
     private SetterMapper setterMapper;
     @Mock
     private TestDataGenerationEngine testDataGenerationEngine;
@@ -62,19 +66,20 @@ class TestDataGenerationContextManagerTest {
         TestDataGenerationContextManager.enableContextAutoRefresh();
     }
 
-    @AfterAll
-    static void setInitialAutoContextRefresh() {
-        resetModulesAndContext();
+    @BeforeEach
+    @AfterEach
+    void resetModulesAndContext() {
+        ContextUtil.resetModulesAndContext();
     }
 
     @Test
     void autoRefreshContextAfterAllModulesUpdatesTest() {
-        resetModulesAndContext();
         TestDataGenerationContextManager.enableContextAutoRefresh();
         TestDataGenerationContext testDataGenerationContext1 = TestDataGenerationContextManager.getContext();
         TestDataGenerationModuleFactory.replaceCustomFieldMappingStorage(context -> customFieldMappingStorage);
         TestDataGenerationModuleFactory.replaceExecutableTypeResolver(context -> executableTypeResolver);
         TestDataGenerationModuleFactory.replaceFieldTypeResolver(context -> fieldTypeResolver);
+        TestDataGenerationModuleFactory.replacePostGenerationHookStorage(context -> postGenerationHookStorage);
         TestDataGenerationModuleFactory.replaceSetterMapper(context -> setterMapper);
         TestDataGenerationModuleFactory.replaceTestDataGenerationEngine(context -> testDataGenerationEngine);
         TestDataGenerationModuleFactory.replaceTestDataGeneratorPicker(context -> testDataGeneratorPicker);
@@ -84,6 +89,7 @@ class TestDataGenerationContextManagerTest {
         Assertions.assertSame(customFieldMappingStorage, testDataGenerationContext2.getCustomFieldMappingStorage());
         Assertions.assertSame(executableTypeResolver, testDataGenerationContext2.getExecutableTypeResolver());
         Assertions.assertSame(fieldTypeResolver, testDataGenerationContext2.getFieldTypeResolver());
+        Assertions.assertSame(postGenerationHookStorage, testDataGenerationContext2.getPostGenerationHookStorage());
         Assertions.assertSame(setterMapper, testDataGenerationContext2.getSetterMapper());
         Assertions.assertSame(testDataGenerationEngine, testDataGenerationContext2.getTestDataGenerationEngine());
         Assertions.assertSame(testDataGeneratorPicker, testDataGenerationContext2.getTestDataGeneratorPicker());
@@ -92,7 +98,6 @@ class TestDataGenerationContextManagerTest {
 
     @Test
     void autoRefreshContextAfterContextEngineUpdatesTest() {
-        resetModulesAndContext();
         TestDataGenerationContextManager.enableContextAutoRefresh();
         TestDataGenerationContext testDataGenerationContext1 = TestDataGenerationContextManager.getContext();
         TestDataGenerationModuleFactory.replaceTestDataGenerationEngine(context -> testDataGenerationEngine);
@@ -104,6 +109,8 @@ class TestDataGenerationContextManagerTest {
                 testDataGenerationContext2.getExecutableTypeResolver());
         Assertions.assertNotSame(testDataGenerationContext1.getFieldTypeResolver(),
                 testDataGenerationContext2.getFieldTypeResolver());
+        Assertions.assertNotSame(testDataGenerationContext1.getPostGenerationHookStorage(),
+                testDataGenerationContext2.getPostGenerationHookStorage());
         Assertions.assertNotSame(testDataGenerationContext1.getSetterMapper(),
                 testDataGenerationContext2.getSetterMapper());
         Assertions.assertSame(testDataGenerationEngine, testDataGenerationContext2.getTestDataGenerationEngine());
@@ -115,7 +122,6 @@ class TestDataGenerationContextManagerTest {
 
     @Test
     void autoRefreshContextAfterCustomFieldMappingStorageUpdatesTest() {
-        resetModulesAndContext();
         TestDataGenerationContextManager.enableContextAutoRefresh();
         TestDataGenerationContext testDataGenerationContext1 = TestDataGenerationContextManager.getContext();
         TestDataGenerationModuleFactory.replaceCustomFieldMappingStorage(context -> customFieldMappingStorage);
@@ -126,6 +132,8 @@ class TestDataGenerationContextManagerTest {
                 testDataGenerationContext2.getExecutableTypeResolver());
         Assertions.assertNotSame(testDataGenerationContext1.getFieldTypeResolver(),
                 testDataGenerationContext2.getFieldTypeResolver());
+        Assertions.assertNotSame(testDataGenerationContext1.getPostGenerationHookStorage(),
+                testDataGenerationContext2.getPostGenerationHookStorage());
         Assertions.assertNotSame(testDataGenerationContext1.getSetterMapper(),
                 testDataGenerationContext2.getSetterMapper());
         Assertions.assertNotSame(testDataGenerationContext1.getTestDataGenerationEngine(),
@@ -138,7 +146,6 @@ class TestDataGenerationContextManagerTest {
 
     @Test
     void autoRefreshContextAfterExecutableTypeResolverUpdatesTest() {
-        resetModulesAndContext();
         TestDataGenerationContextManager.enableContextAutoRefresh();
         TestDataGenerationContext testDataGenerationContext1 = TestDataGenerationContextManager.getContext();
         TestDataGenerationModuleFactory.replaceExecutableTypeResolver(context -> executableTypeResolver);
@@ -149,6 +156,8 @@ class TestDataGenerationContextManagerTest {
         Assertions.assertSame(executableTypeResolver, testDataGenerationContext2.getExecutableTypeResolver());
         Assertions.assertNotSame(testDataGenerationContext1.getFieldTypeResolver(),
                 testDataGenerationContext2.getFieldTypeResolver());
+        Assertions.assertNotSame(testDataGenerationContext1.getPostGenerationHookStorage(),
+                testDataGenerationContext2.getPostGenerationHookStorage());
         Assertions.assertNotSame(testDataGenerationContext1.getSetterMapper(),
                 testDataGenerationContext2.getSetterMapper());
         Assertions.assertNotSame(testDataGenerationContext1.getTestDataGenerationEngine(),
@@ -161,7 +170,6 @@ class TestDataGenerationContextManagerTest {
 
     @Test
     void autoRefreshContextAfterFieldTypeResolverUpdatesTest() {
-        resetModulesAndContext();
         TestDataGenerationContextManager.enableContextAutoRefresh();
         TestDataGenerationContext testDataGenerationContext1 = TestDataGenerationContextManager.getContext();
         TestDataGenerationModuleFactory.replaceFieldTypeResolver(context -> fieldTypeResolver);
@@ -172,6 +180,32 @@ class TestDataGenerationContextManagerTest {
         Assertions.assertNotSame(testDataGenerationContext1.getExecutableTypeResolver(),
                 testDataGenerationContext2.getExecutableTypeResolver());
         Assertions.assertSame(fieldTypeResolver, testDataGenerationContext2.getFieldTypeResolver());
+        Assertions.assertNotSame(testDataGenerationContext1.getPostGenerationHookStorage(),
+                testDataGenerationContext2.getPostGenerationHookStorage());
+        Assertions.assertNotSame(testDataGenerationContext1.getSetterMapper(),
+                testDataGenerationContext2.getSetterMapper());
+        Assertions.assertNotSame(testDataGenerationContext1.getTestDataGenerationEngine(),
+                testDataGenerationContext2.getTestDataGenerationEngine());
+        Assertions.assertNotSame(testDataGenerationContext1.getTestDataGeneratorPicker(),
+                testDataGenerationContext2.getTestDataGeneratorPicker());
+        Assertions.assertNotSame(testDataGenerationContext1.getTestDataGeneratorStorage(),
+                testDataGenerationContext2.getTestDataGeneratorStorage());
+    }
+
+    @Test
+    void autoRefreshContextAfterPostGenerationHookStorageUpdatesTest() {
+        TestDataGenerationContextManager.enableContextAutoRefresh();
+        TestDataGenerationContext testDataGenerationContext1 = TestDataGenerationContextManager.getContext();
+        TestDataGenerationModuleFactory.replacePostGenerationHookStorage(context -> postGenerationHookStorage);
+        TestDataGenerationContext testDataGenerationContext2 = TestDataGenerationContextManager.getContext();
+        Assertions.assertNotSame(testDataGenerationContext1, testDataGenerationContext2);
+        Assertions.assertNotSame(testDataGenerationContext1.getCustomFieldMappingStorage(),
+                testDataGenerationContext2.getCustomFieldMappingStorage());
+        Assertions.assertNotSame(testDataGenerationContext1.getExecutableTypeResolver(),
+                testDataGenerationContext2.getExecutableTypeResolver());
+        Assertions.assertNotSame(testDataGenerationContext1.getFieldTypeResolver(),
+                testDataGenerationContext2.getFieldTypeResolver());
+        Assertions.assertSame(postGenerationHookStorage, testDataGenerationContext2.getPostGenerationHookStorage());
         Assertions.assertNotSame(testDataGenerationContext1.getSetterMapper(),
                 testDataGenerationContext2.getSetterMapper());
         Assertions.assertNotSame(testDataGenerationContext1.getTestDataGenerationEngine(),
@@ -184,7 +218,6 @@ class TestDataGenerationContextManagerTest {
 
     @Test
     void autoRefreshContextAfterSetterMapperUpdatesTest() {
-        resetModulesAndContext();
         TestDataGenerationContextManager.enableContextAutoRefresh();
         TestDataGenerationContext testDataGenerationContext1 = TestDataGenerationContextManager.getContext();
         TestDataGenerationModuleFactory.replaceSetterMapper(context -> setterMapper);
@@ -196,6 +229,8 @@ class TestDataGenerationContextManagerTest {
                 testDataGenerationContext2.getExecutableTypeResolver());
         Assertions.assertNotSame(testDataGenerationContext1.getFieldTypeResolver(),
                 testDataGenerationContext2.getFieldTypeResolver());
+        Assertions.assertNotSame(testDataGenerationContext1.getPostGenerationHookStorage(),
+                testDataGenerationContext2.getPostGenerationHookStorage());
         Assertions.assertSame(setterMapper, testDataGenerationContext2.getSetterMapper());
         Assertions.assertNotSame(testDataGenerationContext1.getTestDataGenerationEngine(),
                 testDataGenerationContext2.getTestDataGenerationEngine());
@@ -207,7 +242,6 @@ class TestDataGenerationContextManagerTest {
 
     @Test
     void autoRefreshContextAfterTestDataGeneratorPickerUpdatesTest() {
-        resetModulesAndContext();
         TestDataGenerationContextManager.enableContextAutoRefresh();
         TestDataGenerationContext testDataGenerationContext1 = TestDataGenerationContextManager.getContext();
         TestDataGenerationModuleFactory.replaceTestDataGeneratorPicker(context -> testDataGeneratorPicker);
@@ -219,6 +253,8 @@ class TestDataGenerationContextManagerTest {
                 testDataGenerationContext2.getExecutableTypeResolver());
         Assertions.assertNotSame(testDataGenerationContext1.getFieldTypeResolver(),
                 testDataGenerationContext2.getFieldTypeResolver());
+        Assertions.assertNotSame(testDataGenerationContext1.getPostGenerationHookStorage(),
+                testDataGenerationContext2.getPostGenerationHookStorage());
         Assertions.assertNotSame(testDataGenerationContext1.getSetterMapper(),
                 testDataGenerationContext2.getSetterMapper());
         Assertions.assertNotSame(testDataGenerationContext1.getTestDataGenerationEngine(),
@@ -230,7 +266,6 @@ class TestDataGenerationContextManagerTest {
 
     @Test
     void autoRefreshContextAfterTestDataGeneratorStorageUpdatesTest() {
-        resetModulesAndContext();
         TestDataGenerationContextManager.enableContextAutoRefresh();
         TestDataGenerationContext testDataGenerationContext1 = TestDataGenerationContextManager.getContext();
         TestDataGenerationModuleFactory.replaceTestDataGeneratorStorage(context -> testDataGeneratorStorage);
@@ -242,6 +277,8 @@ class TestDataGenerationContextManagerTest {
                 testDataGenerationContext2.getExecutableTypeResolver());
         Assertions.assertNotSame(testDataGenerationContext1.getFieldTypeResolver(),
                 testDataGenerationContext2.getFieldTypeResolver());
+        Assertions.assertNotSame(testDataGenerationContext1.getPostGenerationHookStorage(),
+                testDataGenerationContext2.getPostGenerationHookStorage());
         Assertions.assertNotSame(testDataGenerationContext1.getSetterMapper(),
                 testDataGenerationContext2.getSetterMapper());
         Assertions.assertNotSame(testDataGenerationContext1.getTestDataGenerationEngine(),
@@ -262,12 +299,12 @@ class TestDataGenerationContextManagerTest {
 
     @Test
     void newContextAfterRefreshAfterAllModulesUpdatesTest() {
-        resetModulesAndContext();
         TestDataGenerationContextManager.disableContextAutoRefresh();
         TestDataGenerationContext testDataGenerationContext1 = TestDataGenerationContextManager.getContext();
         TestDataGenerationModuleFactory.replaceCustomFieldMappingStorage(context -> customFieldMappingStorage);
         TestDataGenerationModuleFactory.replaceExecutableTypeResolver(context -> executableTypeResolver);
         TestDataGenerationModuleFactory.replaceFieldTypeResolver(context -> fieldTypeResolver);
+        TestDataGenerationModuleFactory.replacePostGenerationHookStorage(context -> postGenerationHookStorage);
         TestDataGenerationModuleFactory.replaceSetterMapper(context -> setterMapper);
         TestDataGenerationModuleFactory.replaceTestDataGenerationEngine(context -> testDataGenerationEngine);
         TestDataGenerationModuleFactory.replaceTestDataGeneratorPicker(context -> testDataGeneratorPicker);
@@ -277,6 +314,7 @@ class TestDataGenerationContextManagerTest {
         Assertions.assertNotSame(testDataGenerationContext1, testDataGenerationContext2);
         Assertions.assertSame(customFieldMappingStorage, testDataGenerationContext2.getCustomFieldMappingStorage());
         Assertions.assertSame(executableTypeResolver, testDataGenerationContext2.getExecutableTypeResolver());
+        Assertions.assertSame(postGenerationHookStorage, testDataGenerationContext2.getPostGenerationHookStorage());
         Assertions.assertSame(fieldTypeResolver, testDataGenerationContext2.getFieldTypeResolver());
         Assertions.assertSame(setterMapper, testDataGenerationContext2.getSetterMapper());
         Assertions.assertSame(testDataGenerationEngine, testDataGenerationContext2.getTestDataGenerationEngine());
@@ -286,7 +324,6 @@ class TestDataGenerationContextManagerTest {
 
     @Test
     void newContextAfterRefreshAfterContextTestDataGenerationEngineUpdatesTest() {
-        resetModulesAndContext();
         TestDataGenerationContextManager.disableContextAutoRefresh();
         TestDataGenerationContext testDataGenerationContext1 = TestDataGenerationContextManager.getContext();
         TestDataGenerationModuleFactory.replaceTestDataGenerationEngine(context -> testDataGenerationEngine);
@@ -299,6 +336,8 @@ class TestDataGenerationContextManagerTest {
                 testDataGenerationContext2.getExecutableTypeResolver());
         Assertions.assertNotSame(testDataGenerationContext1.getFieldTypeResolver(),
                 testDataGenerationContext2.getFieldTypeResolver());
+        Assertions.assertNotSame(testDataGenerationContext1.getPostGenerationHookStorage(),
+                testDataGenerationContext2.getPostGenerationHookStorage());
         Assertions.assertNotSame(testDataGenerationContext1.getSetterMapper(),
                 testDataGenerationContext2.getSetterMapper());
         Assertions.assertSame(testDataGenerationEngine, testDataGenerationContext2.getTestDataGenerationEngine());
@@ -310,7 +349,6 @@ class TestDataGenerationContextManagerTest {
 
     @Test
     void newContextAfterRefreshAfterCustomFieldMappingStorageUpdatesTest() {
-        resetModulesAndContext();
         TestDataGenerationContextManager.disableContextAutoRefresh();
         TestDataGenerationContext testDataGenerationContext1 = TestDataGenerationContextManager.getContext();
         TestDataGenerationModuleFactory.replaceCustomFieldMappingStorage(context -> customFieldMappingStorage);
@@ -322,6 +360,8 @@ class TestDataGenerationContextManagerTest {
                 testDataGenerationContext2.getExecutableTypeResolver());
         Assertions.assertNotSame(testDataGenerationContext1.getFieldTypeResolver(),
                 testDataGenerationContext2.getFieldTypeResolver());
+        Assertions.assertNotSame(testDataGenerationContext1.getPostGenerationHookStorage(),
+                testDataGenerationContext2.getPostGenerationHookStorage());
         Assertions.assertNotSame(testDataGenerationContext1.getSetterMapper(),
                 testDataGenerationContext2.getSetterMapper());
         Assertions.assertNotSame(testDataGenerationContext1.getTestDataGenerationEngine(),
@@ -334,7 +374,6 @@ class TestDataGenerationContextManagerTest {
 
     @Test
     void newContextAfterRefreshAfterExecutableTypeResolverUpdatesTest() {
-        resetModulesAndContext();
         TestDataGenerationContextManager.disableContextAutoRefresh();
         TestDataGenerationContext testDataGenerationContext1 = TestDataGenerationContextManager.getContext();
         TestDataGenerationModuleFactory.replaceExecutableTypeResolver(context -> executableTypeResolver);
@@ -346,6 +385,8 @@ class TestDataGenerationContextManagerTest {
         Assertions.assertSame(executableTypeResolver, testDataGenerationContext2.getExecutableTypeResolver());
         Assertions.assertNotSame(testDataGenerationContext1.getFieldTypeResolver(),
                 testDataGenerationContext2.getFieldTypeResolver());
+        Assertions.assertNotSame(testDataGenerationContext1.getPostGenerationHookStorage(),
+                testDataGenerationContext2.getPostGenerationHookStorage());
         Assertions.assertNotSame(testDataGenerationContext1.getSetterMapper(),
                 testDataGenerationContext2.getSetterMapper());
         Assertions.assertNotSame(testDataGenerationContext1.getTestDataGenerationEngine(),
@@ -358,7 +399,6 @@ class TestDataGenerationContextManagerTest {
 
     @Test
     void newContextAfterRefreshAfterFieldTypeResolverUpdatesTest() {
-        resetModulesAndContext();
         TestDataGenerationContextManager.disableContextAutoRefresh();
         TestDataGenerationContext testDataGenerationContext1 = TestDataGenerationContextManager.getContext();
         TestDataGenerationModuleFactory.replaceFieldTypeResolver(context -> fieldTypeResolver);
@@ -372,6 +412,33 @@ class TestDataGenerationContextManagerTest {
         Assertions.assertSame(fieldTypeResolver, testDataGenerationContext2.getFieldTypeResolver());
         Assertions.assertNotSame(testDataGenerationContext1.getFieldTypeResolver(),
                 testDataGenerationContext2.getFieldTypeResolver());
+        Assertions.assertNotSame(testDataGenerationContext1.getPostGenerationHookStorage(),
+                testDataGenerationContext2.getPostGenerationHookStorage());
+        Assertions.assertNotSame(testDataGenerationContext1.getSetterMapper(),
+                testDataGenerationContext2.getSetterMapper());
+        Assertions.assertNotSame(testDataGenerationContext1.getTestDataGenerationEngine(),
+                testDataGenerationContext2.getTestDataGenerationEngine());
+        Assertions.assertNotSame(testDataGenerationContext1.getTestDataGeneratorPicker(),
+                testDataGenerationContext2.getTestDataGeneratorPicker());
+        Assertions.assertNotSame(testDataGenerationContext1.getTestDataGeneratorStorage(),
+                testDataGenerationContext2.getTestDataGeneratorStorage());
+    }
+
+    @Test
+    void newContextAfterRefreshAfterPostGenerationHookStorageUpdatesTest() {
+        TestDataGenerationContextManager.disableContextAutoRefresh();
+        TestDataGenerationContext testDataGenerationContext1 = TestDataGenerationContextManager.getContext();
+        TestDataGenerationModuleFactory.replacePostGenerationHookStorage(context -> postGenerationHookStorage);
+        TestDataGenerationContextManager.refreshContext();
+        TestDataGenerationContext testDataGenerationContext2 = TestDataGenerationContextManager.getContext();
+        Assertions.assertNotSame(testDataGenerationContext1, testDataGenerationContext2);
+        Assertions.assertNotSame(testDataGenerationContext1.getCustomFieldMappingStorage(),
+                testDataGenerationContext2.getCustomFieldMappingStorage());
+        Assertions.assertNotSame(testDataGenerationContext1.getExecutableTypeResolver(),
+                testDataGenerationContext2.getExecutableTypeResolver());
+        Assertions.assertNotSame(testDataGenerationContext1.getFieldTypeResolver(),
+                testDataGenerationContext2.getFieldTypeResolver());
+        Assertions.assertSame(postGenerationHookStorage, testDataGenerationContext2.getPostGenerationHookStorage());
         Assertions.assertNotSame(testDataGenerationContext1.getSetterMapper(),
                 testDataGenerationContext2.getSetterMapper());
         Assertions.assertNotSame(testDataGenerationContext1.getTestDataGenerationEngine(),
@@ -384,7 +451,6 @@ class TestDataGenerationContextManagerTest {
 
     @Test
     void newContextAfterRefreshAfterSetterMapperUpdatesTest() {
-        resetModulesAndContext();
         TestDataGenerationContextManager.disableContextAutoRefresh();
         TestDataGenerationContext testDataGenerationContext1 = TestDataGenerationContextManager.getContext();
         TestDataGenerationModuleFactory.replaceSetterMapper(context -> setterMapper);
@@ -397,6 +463,8 @@ class TestDataGenerationContextManagerTest {
                 testDataGenerationContext2.getExecutableTypeResolver());
         Assertions.assertNotSame(testDataGenerationContext1.getFieldTypeResolver(),
                 testDataGenerationContext2.getFieldTypeResolver());
+        Assertions.assertNotSame(testDataGenerationContext1.getPostGenerationHookStorage(),
+                testDataGenerationContext2.getPostGenerationHookStorage());
         Assertions.assertSame(setterMapper, testDataGenerationContext2.getSetterMapper());
         Assertions.assertNotSame(testDataGenerationContext1.getTestDataGenerationEngine(),
                 testDataGenerationContext2.getTestDataGenerationEngine());
@@ -408,7 +476,6 @@ class TestDataGenerationContextManagerTest {
 
     @Test
     void newContextAfterRefreshAfterTestDataGeneratorPickerUpdatesTest() {
-        resetModulesAndContext();
         TestDataGenerationContextManager.disableContextAutoRefresh();
         TestDataGenerationContext testDataGenerationContext1 = TestDataGenerationContextManager.getContext();
         TestDataGenerationModuleFactory.replaceTestDataGeneratorPicker(context -> testDataGeneratorPicker);
@@ -421,6 +488,8 @@ class TestDataGenerationContextManagerTest {
                 testDataGenerationContext2.getExecutableTypeResolver());
         Assertions.assertNotSame(testDataGenerationContext1.getFieldTypeResolver(),
                 testDataGenerationContext2.getFieldTypeResolver());
+        Assertions.assertNotSame(testDataGenerationContext1.getPostGenerationHookStorage(),
+                testDataGenerationContext2.getPostGenerationHookStorage());
         Assertions.assertNotSame(testDataGenerationContext1.getSetterMapper(),
                 testDataGenerationContext2.getSetterMapper());
         Assertions.assertNotSame(testDataGenerationContext1.getTestDataGenerationEngine(),
@@ -432,7 +501,6 @@ class TestDataGenerationContextManagerTest {
 
     @Test
     void newContextAfterRefreshAfterTestDataGeneratorStorageUpdatesTest() {
-        resetModulesAndContext();
         TestDataGenerationContextManager.disableContextAutoRefresh();
         TestDataGenerationContext testDataGenerationContext1 = TestDataGenerationContextManager.getContext();
         TestDataGenerationModuleFactory.replaceTestDataGeneratorStorage(context -> testDataGeneratorStorage);
@@ -445,6 +513,8 @@ class TestDataGenerationContextManagerTest {
                 testDataGenerationContext2.getExecutableTypeResolver());
         Assertions.assertNotSame(testDataGenerationContext1.getFieldTypeResolver(),
                 testDataGenerationContext2.getFieldTypeResolver());
+        Assertions.assertNotSame(testDataGenerationContext1.getPostGenerationHookStorage(),
+                testDataGenerationContext2.getPostGenerationHookStorage());
         Assertions.assertNotSame(testDataGenerationContext1.getSetterMapper(),
                 testDataGenerationContext2.getSetterMapper());
         Assertions.assertNotSame(testDataGenerationContext1.getTestDataGenerationEngine(),
@@ -456,7 +526,6 @@ class TestDataGenerationContextManagerTest {
 
     @Test
     void sameContextIsReturnedIfAutoRefreshDisabledAfterCustomFieldMappingStorageUpdatesTest() {
-        resetModulesAndContext();
         TestDataGenerationContextManager.disableContextAutoRefresh();
         TestDataGenerationContext testDataGenerationContext1 = TestDataGenerationContextManager.getContext();
         TestDataGenerationModuleFactory.replaceCustomFieldMappingStorage(context -> customFieldMappingStorage);
@@ -466,7 +535,6 @@ class TestDataGenerationContextManagerTest {
 
     @Test
     void sameContextIsReturnedIfAutoRefreshDisabledAfterExecutableTypeResolverUpdatesTest() {
-        resetModulesAndContext();
         TestDataGenerationContextManager.disableContextAutoRefresh();
         TestDataGenerationContext testDataGenerationContext1 = TestDataGenerationContextManager.getContext();
         TestDataGenerationModuleFactory.replaceExecutableTypeResolver(context -> executableTypeResolver);
@@ -476,7 +544,6 @@ class TestDataGenerationContextManagerTest {
 
     @Test
     void sameContextIsReturnedIfAutoRefreshDisabledAfterFieldTypeResolverUpdatesTest() {
-        resetModulesAndContext();
         TestDataGenerationContextManager.disableContextAutoRefresh();
         TestDataGenerationContext testDataGenerationContext1 = TestDataGenerationContextManager.getContext();
         TestDataGenerationModuleFactory.replaceFieldTypeResolver(context -> fieldTypeResolver);
@@ -486,12 +553,12 @@ class TestDataGenerationContextManagerTest {
 
     @Test
     void sameContextIsReturnedIfAutoRefreshDisabledAfterRefreshAfterAllModulesUpdatesTest() {
-        resetModulesAndContext();
         TestDataGenerationContextManager.disableContextAutoRefresh();
         TestDataGenerationContext testDataGenerationContext1 = TestDataGenerationContextManager.getContext();
         TestDataGenerationModuleFactory.replaceCustomFieldMappingStorage(context -> customFieldMappingStorage);
         TestDataGenerationModuleFactory.replaceExecutableTypeResolver(context -> executableTypeResolver);
         TestDataGenerationModuleFactory.replaceFieldTypeResolver(context -> fieldTypeResolver);
+        TestDataGenerationModuleFactory.replacePostGenerationHookStorage(context -> postGenerationHookStorage);
         TestDataGenerationModuleFactory.replaceSetterMapper(context -> setterMapper);
         TestDataGenerationModuleFactory.replaceTestDataGenerationEngine(context -> testDataGenerationEngine);
         TestDataGenerationModuleFactory.replaceTestDataGeneratorPicker(context -> testDataGeneratorPicker);
@@ -501,8 +568,16 @@ class TestDataGenerationContextManagerTest {
     }
 
     @Test
+    void sameContextIsReturnedIfAutoRefreshDisabledAfterPostGenerationHookStorageUpdatesTest() {
+        TestDataGenerationContextManager.disableContextAutoRefresh();
+        TestDataGenerationContext testDataGenerationContext1 = TestDataGenerationContextManager.getContext();
+        TestDataGenerationModuleFactory.replacePostGenerationHookStorage(context -> postGenerationHookStorage);
+        TestDataGenerationContext testDataGenerationContext2 = TestDataGenerationContextManager.getContext();
+        Assertions.assertSame(testDataGenerationContext1, testDataGenerationContext2);
+    }
+
+    @Test
     void sameContextIsReturnedIfAutoRefreshDisabledAfterSetterMapperUpdatesTest() {
-        resetModulesAndContext();
         TestDataGenerationContextManager.disableContextAutoRefresh();
         TestDataGenerationContext testDataGenerationContext1 = TestDataGenerationContextManager.getContext();
         TestDataGenerationModuleFactory.replaceSetterMapper(context -> setterMapper);
@@ -512,7 +587,6 @@ class TestDataGenerationContextManagerTest {
 
     @Test
     void sameContextIsReturnedIfAutoRefreshDisabledAfterTestDataGenerationEngineUpdatesTest() {
-        resetModulesAndContext();
         TestDataGenerationContextManager.disableContextAutoRefresh();
         TestDataGenerationContext testDataGenerationContext1 = TestDataGenerationContextManager.getContext();
         TestDataGenerationModuleFactory.replaceTestDataGenerationEngine(context -> testDataGenerationEngine);
@@ -522,7 +596,6 @@ class TestDataGenerationContextManagerTest {
 
     @Test
     void sameContextIsReturnedIfAutoRefreshDisabledAfterTestDataGeneratorPickerUpdatesTest() {
-        resetModulesAndContext();
         TestDataGenerationContextManager.disableContextAutoRefresh();
         TestDataGenerationContext testDataGenerationContext1 = TestDataGenerationContextManager.getContext();
         TestDataGenerationModuleFactory.replaceTestDataGeneratorPicker(context -> testDataGeneratorPicker);
@@ -532,7 +605,6 @@ class TestDataGenerationContextManagerTest {
 
     @Test
     void sameContextIsReturnedIfAutoRefreshDisabledAfterTestDataGeneratorStorageUpdatesTest() {
-        resetModulesAndContext();
         TestDataGenerationContextManager.disableContextAutoRefresh();
         TestDataGenerationContext testDataGenerationContext1 = TestDataGenerationContextManager.getContext();
         TestDataGenerationModuleFactory.replaceTestDataGeneratorStorage(context -> testDataGeneratorStorage);
@@ -545,17 +617,5 @@ class TestDataGenerationContextManagerTest {
         TestDataGenerationContext testDataGenerationContext1 = TestDataGenerationContextManager.getContext();
         TestDataGenerationContext testDataGenerationContext2 = TestDataGenerationContextManager.getContext();
         Assertions.assertSame(testDataGenerationContext1, testDataGenerationContext2);
-    }
-
-    private static void resetModulesAndContext() {
-        TestDataGenerationContextManager.disableContextAutoRefresh();
-        TestDataGenerationModuleFactory.replaceCustomFieldMappingStorage(null);
-        TestDataGenerationModuleFactory.replaceExecutableTypeResolver(null);
-        TestDataGenerationModuleFactory.replaceFieldTypeResolver(null);
-        TestDataGenerationModuleFactory.replaceSetterMapper(null);
-        TestDataGenerationModuleFactory.replaceTestDataGenerationEngine(null);
-        TestDataGenerationModuleFactory.replaceTestDataGeneratorPicker(null);
-        TestDataGenerationModuleFactory.replaceTestDataGeneratorStorage(null);
-        TestDataGenerationContextManager.refreshContext();
     }
 }

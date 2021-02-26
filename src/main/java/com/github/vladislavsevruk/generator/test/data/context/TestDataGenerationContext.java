@@ -27,6 +27,7 @@ import com.github.vladislavsevruk.generator.test.data.engine.TestDataGenerationE
 import com.github.vladislavsevruk.generator.test.data.mapping.CustomFieldMappingStorage;
 import com.github.vladislavsevruk.generator.test.data.mapping.SetterMapper;
 import com.github.vladislavsevruk.generator.test.data.picker.TestDataGeneratorPicker;
+import com.github.vladislavsevruk.generator.test.data.storage.PostGenerationHookStorage;
 import com.github.vladislavsevruk.generator.test.data.storage.TestDataGeneratorStorage;
 import com.github.vladislavsevruk.resolver.resolver.executable.ExecutableTypeResolver;
 import com.github.vladislavsevruk.resolver.resolver.field.FieldTypeResolver;
@@ -53,6 +54,11 @@ public interface TestDataGenerationContext {
      */
     @SuppressWarnings("java:S1452")
     FieldTypeResolver<TypeMeta<?>> getFieldTypeResolver();
+
+    /**
+     * Returns current instance of <code>PostGenerationHookStorage</code> stored at context.
+     */
+    PostGenerationHookStorage getPostGenerationHookStorage();
 
     /**
      * Returns current instance of <code>SetterMapper</code> stored at context.
