@@ -56,6 +56,11 @@ public class TestDataGenerationEngineImpl implements TestDataGenerationEngine {
     @Override
     public <T> T generate(TestDataGenerationConfig testDataGenerationConfig, TypeMeta<T> typeMeta) {
         NonParameterizedTypeDataGenerator<T> generator = context.getTestDataGeneratorPicker().pickGenerator(typeMeta);
-        return Objects.nonNull(generator) ? generator.generate(testDataGenerationConfig) : null;
+        if (Objects.isNull(generator)) {
+            return null;
+        }
+        T generatedModel = generator.generate(testDataGenerationConfig);
+        context.getPostGenerationHookStorage().getAll(typeMeta).forEach(hook -> hook.process(generatedModel));
+        return generatedModel;
     }
 }
