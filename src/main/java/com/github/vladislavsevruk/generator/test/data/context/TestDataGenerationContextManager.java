@@ -97,7 +97,9 @@ public final class TestDataGenerationContextManager {
     private static TestDataGenerationContext newContext() {
         return new TestDataGenerationContextImpl(TestDataGenerationModuleFactory.customFieldMappingStorage(),
                 TestDataGenerationModuleFactory.executableTypeResolver(),
-                TestDataGenerationModuleFactory.fieldTypeResolver(), TestDataGenerationModuleFactory.setterMapper(),
+                TestDataGenerationModuleFactory.fieldTypeResolver(),
+                TestDataGenerationModuleFactory.postGenerationHookStorage(),
+                TestDataGenerationModuleFactory.setterMapper(),
                 TestDataGenerationModuleFactory.testDataGenerationEngine(),
                 TestDataGenerationModuleFactory.testDataGeneratorPicker(),
                 TestDataGenerationModuleFactory.testDataGeneratorStorage());

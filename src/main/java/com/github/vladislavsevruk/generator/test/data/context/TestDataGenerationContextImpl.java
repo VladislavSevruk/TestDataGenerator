@@ -31,6 +31,8 @@ import com.github.vladislavsevruk.generator.test.data.mapping.SetterMapper;
 import com.github.vladislavsevruk.generator.test.data.mapping.SetterMapperImpl;
 import com.github.vladislavsevruk.generator.test.data.picker.TestDataGeneratorPicker;
 import com.github.vladislavsevruk.generator.test.data.picker.TestDataGeneratorPickerImpl;
+import com.github.vladislavsevruk.generator.test.data.storage.PostGenerationHookStorage;
+import com.github.vladislavsevruk.generator.test.data.storage.PostGenerationHookStorageImpl;
 import com.github.vladislavsevruk.generator.test.data.storage.TestDataGeneratorStorage;
 import com.github.vladislavsevruk.generator.test.data.storage.TestDataGeneratorStorageImpl;
 import com.github.vladislavsevruk.resolver.resolver.executable.ExecutableTypeMetaResolver;
@@ -56,6 +58,7 @@ final class TestDataGenerationContextImpl implements TestDataGenerationContext {
     CustomFieldMappingStorage customFieldMappingStorage;
     ExecutableTypeResolver<TypeMeta<?>> executableTypeResolver;
     FieldTypeResolver<TypeMeta<?>> fieldTypeResolver;
+    PostGenerationHookStorage postGenerationHookStorage;
     SetterMapper setterMapper;
     TestDataGenerationEngine testDataGenerationEngine;
     TestDataGeneratorPicker testDataGeneratorPicker;
@@ -76,10 +79,12 @@ final class TestDataGenerationContextImpl implements TestDataGenerationContext {
      * @param testDataGeneratorStorageFactoryMethod factory method for <code>TestDataGeneratorStorage</code> module
      *                                              implementation.
      */
+    @SuppressWarnings("java:S107")
     TestDataGenerationContextImpl(
             TestDataGenerationModuleFactoryMethod<CustomFieldMappingStorage> customFieldMappingStorageFactoryMethod,
             TestDataGenerationModuleFactoryMethod<ExecutableTypeResolver<TypeMeta<?>>> executableTypeResolverFactoryMethod,
             TestDataGenerationModuleFactoryMethod<FieldTypeResolver<TypeMeta<?>>> fieldTypeResolverFactoryMethod,
+            TestDataGenerationModuleFactoryMethod<PostGenerationHookStorage> postGenerationHookStorageFactoryMethod,
             TestDataGenerationModuleFactoryMethod<SetterMapper> setterMapperFactoryMethod,
             TestDataGenerationModuleFactoryMethod<TestDataGenerationEngine> testDataGenerationEngineFactoryMethod,
             TestDataGenerationModuleFactoryMethod<TestDataGeneratorPicker> testDataGeneratorPickerFactoryMethod,
@@ -98,6 +103,10 @@ final class TestDataGenerationContextImpl implements TestDataGenerationContext {
                 .format("Using '%s' as method type resolver.", executableTypeResolver.getClass().getName()));
         this.fieldTypeResolver = orDefault(fieldTypeResolverFactoryMethod, context -> new FieldTypeMetaResolver());
         log.debug(() -> String.format("Using '%s' as field type resolver.", fieldTypeResolver.getClass().getName()));
+        this.postGenerationHookStorage = orDefault(postGenerationHookStorageFactoryMethod,
+                context -> new PostGenerationHookStorageImpl());
+        log.debug(() -> String
+                .format("Using '%s' as post generation hook storage.", postGenerationHookStorage.getClass().getName()));
         this.testDataGeneratorStorage = orDefault(testDataGeneratorStorageFactoryMethod,
                 TestDataGeneratorStorageImpl::new);
         log.debug(() -> String

@@ -27,13 +27,16 @@ import com.github.vladislavsevruk.generator.test.data.engine.TestDataGenerationE
 import com.github.vladislavsevruk.generator.test.data.mapping.CustomFieldMappingStorage;
 import com.github.vladislavsevruk.generator.test.data.mapping.SetterMapper;
 import com.github.vladislavsevruk.generator.test.data.picker.TestDataGeneratorPicker;
+import com.github.vladislavsevruk.generator.test.data.storage.PostGenerationHookStorage;
 import com.github.vladislavsevruk.generator.test.data.storage.TestDataGeneratorStorage;
 import com.github.vladislavsevruk.resolver.resolver.executable.ExecutableTypeResolver;
 import com.github.vladislavsevruk.resolver.resolver.field.FieldTypeResolver;
 import com.github.vladislavsevruk.resolver.type.TypeMeta;
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -50,6 +53,8 @@ class TestDataGenerationModuleFactoryTest {
     private ExecutableTypeResolver<TypeMeta<?>> executableTypeResolver;
     @Mock
     private FieldTypeResolver<TypeMeta<?>> fieldTypeResolver;
+    @Mock
+    private PostGenerationHookStorage postGenerationHookStorage;
     @Mock
     private SetterMapper setterMapper;
     @Mock
@@ -70,6 +75,12 @@ class TestDataGenerationModuleFactoryTest {
         if (initialAutoRefreshContext) {
             TestDataGenerationContextManager.enableContextAutoRefresh();
         }
+    }
+
+    @BeforeEach
+    @AfterEach
+    void resetModulesAndContext() {
+        ContextUtil.resetModulesAndContext();
     }
 
     @Test
@@ -97,7 +108,14 @@ class TestDataGenerationModuleFactoryTest {
     }
 
     @Test
-    void replaceGetterSetterMapperTest() {
+    void replacePostGenerationHookStorageTest() {
+        TestDataGenerationModuleFactoryMethod<PostGenerationHookStorage> factoryMethod = context -> postGenerationHookStorage;
+        TestDataGenerationModuleFactory.replacePostGenerationHookStorage(factoryMethod);
+        Assertions.assertEquals(factoryMethod, TestDataGenerationModuleFactory.postGenerationHookStorage());
+    }
+
+    @Test
+    void replaceSetterMapperTest() {
         TestDataGenerationModuleFactoryMethod<SetterMapper> factoryMethod = context -> setterMapper;
         TestDataGenerationModuleFactory.replaceSetterMapper(factoryMethod);
         Assertions.assertEquals(factoryMethod, TestDataGenerationModuleFactory.setterMapper());
