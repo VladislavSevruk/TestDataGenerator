@@ -35,4 +35,17 @@ public final class ContextUtil {
                 TestDataGenerationModuleFactory.testDataGeneratorPicker(),
                 TestDataGenerationModuleFactory.testDataGeneratorStorage());
     }
+
+    public static void resetModulesAndContext() {
+        TestDataGenerationContextManager.disableContextAutoRefresh();
+        TestDataGenerationModuleFactory.replaceCustomFieldMappingStorage(null);
+        TestDataGenerationModuleFactory.replaceExecutableTypeResolver(null);
+        TestDataGenerationModuleFactory.replaceFieldTypeResolver(null);
+        TestDataGenerationModuleFactory.replacePostGenerationHookStorage(null);
+        TestDataGenerationModuleFactory.replaceSetterMapper(null);
+        TestDataGenerationModuleFactory.replaceTestDataGenerationEngine(null);
+        TestDataGenerationModuleFactory.replaceTestDataGeneratorPicker(null);
+        TestDataGenerationModuleFactory.replaceTestDataGeneratorStorage(null);
+        TestDataGenerationContextManager.refreshContext();
+    }
 }
